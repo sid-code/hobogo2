@@ -1,0 +1,46 @@
+const schemaSQL = `
+CREATE TABLE IF NOT EXISTS flcache (
+	id            INTEGER NOT NULL PRIMARY KEY,
+	loc           VARCHAR(255),
+	frm           VARCHAR(255),
+	departTime    DATETIME,
+	arriveTime    DATETIME,
+	price         REAL,
+	deepLink      VARCHAR(255),
+	passengers    INTEGER
+)
+`
+
+const searchSQL = `
+SELECT * FROM flcache
+WHERE loc IN ( %s )
+  AND frm = :frm
+  AND passengers = :passengers
+  AND departTime > :earliest
+  AND departTime < :latest
+ORDER BY price ASC
+`
+
+const findDuplicateSQL = `
+SELECT * FROM flcache
+WHERE loc = :loc
+  AND frm = :frm
+  AND departTime = :departTime
+  AND arriveTime = :arriveTime
+  AND price = :price
+  AND passengers = :passengers
+`
+
+const removeSimilarSQL = `
+DELETE FROM flcache
+WHERE loc = :loc
+  AND frm = :frm
+  AND abs(departTime - :departTime) < :fbinsize
+  AND price > :price
+  AND passengers = :passengers
+`
+
+const insertSQL = `
+INSERT INTO flcache(loc, frm, departTime, arriveTime, price, deepLink, passengers)
+VALUES ( :loc, :frm, :departTime, :arriveTime, :price, :deepLink, :passengers )
+`

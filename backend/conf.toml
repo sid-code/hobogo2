@@ -1,0 +1,2 @@
+SpannerDatabase = "projects/hobo-on-the-go/instances/flight-cache/databases/flcache"
+FBinSize = 1000
