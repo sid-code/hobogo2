@@ -54,9 +54,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _resultList = [];
-  int _counter = 0;
+  List<Widget> _inputList = [];
+  int _curInputIndex = 0;
 
-  void _search(String value) {
+  void _search(String value, int index) {
     List<dynamic> _results = [];
     if (value.length > 2) {
       for (int i = 0; i < _airportList.length; i++) {
@@ -70,9 +71,10 @@ class _MyHomePageState extends State<MyHomePage> {
           //print(levenshtein(curName, value, caseSensitive: false));
         }
       }
-      //Redraw UI with updated list
+      //Redraw UI with updated elements
       setState(() {
         _resultList = _buildList(_results);
+        _curInputIndex = index;
       });
     }
   }
@@ -84,14 +86,40 @@ class _MyHomePageState extends State<MyHomePage> {
     retVal.add(new Text(''));
     for (int i = 0; i < list.length; i++) {
       Text text = new Text(list[i]);
-      retVal.add(text);
+      FlatButton but = new FlatButton(
+        child: text,
+        onPressed: () {
+          print(text.data);
+          print(_curInputIndex);
+        },
+      );
+      retVal.add(but);
     }
     return retVal;
   }
 
+  TextField _buildTextField(int index) {
+    TextField _homeCity = new TextField(
+      decoration: new InputDecoration(
+        hintText: (index == 0) ? 'Home City' : 'Destination City ' + index.toString(),
+      ),
+      onChanged: (String str) => _search(str, index),
+    );
+    return _homeCity;
+  }
+
   @override
   Widget build(BuildContext context) {
-    _resultList.add(new Text(''));
+    // Initialization of elements
+    if(_resultList.length == 0){
+      _resultList.add(new Text(''));
+    }
+    if (_inputList.length == 0) {
+      _inputList.add(_buildTextField(0));
+      _inputList.add(_buildTextField(1));
+      _inputList.add(_buildTextField(2));
+    }
+    // Top 'appBar' bar
     return new Scaffold(
       appBar: new AppBar(
         actions: <Widget>[
@@ -106,35 +134,14 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
+      // Main Body
       body: new Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: new Column(
-          // Column is also layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug paint" (press "p" in the console where you ran
-          // "flutter run", or select "Toggle Debug Paint" from the Flutter tool
-          // window in IntelliJ) to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            new TextField(
-              decoration: new InputDecoration(
-                hintText: 'Home City',
-              ),
-              onChanged: _search,
-            ),
             new Flexible(
               child: new ListView(
-                padding: const EdgeInsets.all(20.0),
-                children: _resultList,
+                children: _inputList + _resultList,
               ),
             ),
           ],
