@@ -91,6 +91,11 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           print(text.data);
           print(_curInputIndex);
+          setState(() {
+            //TODO: Do something with 'controller' to set the active text, not hint as I am doing now https://docs.flutter.io/flutter/material/TextField-class.html
+            _inputList[_curInputIndex] = _buildTextField(_curInputIndex, data:text.data);
+            print(_inputList[_curInputIndex].toString());
+          });
         },
       );
       retVal.add(but);
@@ -98,10 +103,18 @@ class _MyHomePageState extends State<MyHomePage> {
     return retVal;
   }
 
-  TextField _buildTextField(int index) {
+  TextField _buildTextField(int index, {String data: ''}) {
+    String contents = '';
+    if(data != ''){
+      contents = data;
+    } else if(index == 0){
+      contents = 'Home City';
+    } else {
+      contents = 'Destination City ' + index.toString();
+    }
     TextField _homeCity = new TextField(
       decoration: new InputDecoration(
-        hintText: (index == 0) ? 'Home City' : 'Destination City ' + index.toString(),
+        hintText: contents,
       ),
       onChanged: (String str) => _search(str, index),
     );
