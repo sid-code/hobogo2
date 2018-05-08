@@ -93,7 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
           print(_curInputIndex);
           setState(() {
             //TODO: Do something with 'controller' to set the active text, not hint as I am doing now https://docs.flutter.io/flutter/material/TextField-class.html
-            _inputList[_curInputIndex] = _buildTextField(_curInputIndex, data:text.data);
+            _inputList[_curInputIndex] =
+                _buildTextField(_curInputIndex, data: text.data);
             print(_inputList[_curInputIndex].toString());
           });
         },
@@ -105,9 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   TextField _buildTextField(int index, {String data: ''}) {
     String contents = '';
-    if(data != ''){
-      //contents = data;
-    } else if(index == 0){
+    if (index == 0) {
       contents = 'Home City';
     } else {
       contents = 'Destination City ' + index.toString();
@@ -125,15 +124,25 @@ class _MyHomePageState extends State<MyHomePage> {
           _inputList.add(_buildTextField(_curInputIndex));
           _resultList = [];
         });
-        },
+      },
     );
     return _homeCity;
   }
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> _buttons = [];
+    FlatButton nextPage = new FlatButton(
+        child: new Text('Next'),
+        onPressed: () {
+          Navigator.push(
+            context,
+            new MaterialPageRoute(builder: (context) => new _ParamterScreen()),
+          );
+        });
+    _buttons.add(nextPage);
     // Initialization of elements
-    if(_resultList.length == 0){
+    if (_resultList.length == 0) {
       _resultList.add(new Text(''));
     }
     if (_inputList.length == 0) {
@@ -161,9 +170,57 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             new Flexible(
               child: new ListView(
-                children: _inputList + _resultList,
+                children: _inputList + _resultList + _buttons,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ParamterScreen extends StatelessWidget {
+  TextField _genField(String hint, {TextInputType kt = TextInputType.text}) {
+    return new TextField(
+        keyboardType: kt,
+        decoration: new InputDecoration(
+          hintText: hint,
+        ),
+        onChanged: (String newVal) {
+          print(newVal);
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text('Param Screen'),
+      ),
+      body: new Center(
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            _genField('Max Stay', kt: TextInputType.number),
+            _genField('Min Stay', kt: TextInputType.number),
+            _genField('Max Price', kt: TextInputType.number),
+            _genField('Minimum Length', kt: TextInputType.number),
+            _genField('Number of Passengers', kt: TextInputType.number),
+            new FlatButton(
+                child: new Text('Back'),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    new MaterialPageRoute(
+                        builder: (context) => new MyHomePage()),
+                  );
+                }),
+            new FlatButton(
+                child: new Text('Submit'),
+                onPressed: () {
+                  print('Submit');
+                }),
           ],
         ),
       ),
