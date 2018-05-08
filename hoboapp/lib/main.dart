@@ -208,6 +208,16 @@ class _ParamterScreen extends StatelessWidget {
             _genField('Minimum Length', kt: TextInputType.number),
             _genField('Number of Passengers', kt: TextInputType.number),
             new FlatButton(
+              child: new Text('datepl'),
+              onPressed:() {
+                showDatePicker(
+                    context: context,
+                    initialDate: new DateTime.now().add(new Duration(days: 1)),
+                    firstDate: new DateTime.now(),
+                    lastDate: DateTime.now().add(new Duration(days: 365))
+                    );
+              }),
+            new FlatButton(
                 child: new Text('Back'),
                 onPressed: () {
                   Navigator.push(
