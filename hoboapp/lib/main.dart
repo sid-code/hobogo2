@@ -181,6 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class _ParamterScreen extends StatelessWidget {
+  Map<String, String> postData = new Map<String, String>();
   TextField _genField(String hint, {TextInputType kt = TextInputType.text}) {
     return new TextField(
         keyboardType: kt,
@@ -188,7 +189,7 @@ class _ParamterScreen extends StatelessWidget {
           hintText: hint,
         ),
         onChanged: (String newVal) {
-          print(newVal);
+          postData[hint] = newVal;
         });
   }
 
