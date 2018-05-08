@@ -106,17 +106,26 @@ class _MyHomePageState extends State<MyHomePage> {
   TextField _buildTextField(int index, {String data: ''}) {
     String contents = '';
     if(data != ''){
-      contents = data;
+      //contents = data;
     } else if(index == 0){
       contents = 'Home City';
     } else {
       contents = 'Destination City ' + index.toString();
     }
+    TextEditingController cont = new TextEditingController(text: data);
     TextField _homeCity = new TextField(
       decoration: new InputDecoration(
         hintText: contents,
       ),
+      controller: cont,
       onChanged: (String str) => _search(str, index),
+      onSubmitted: (String str) {
+        setState(() {
+          _curInputIndex++;
+          _inputList.add(_buildTextField(_curInputIndex));
+          _resultList = [];
+        });
+        },
     );
     return _homeCity;
   }
@@ -129,8 +138,6 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if (_inputList.length == 0) {
       _inputList.add(_buildTextField(0));
-      _inputList.add(_buildTextField(1));
-      _inputList.add(_buildTextField(2));
     }
     // Top 'appBar' bar
     return new Scaffold(
