@@ -220,10 +220,9 @@ class _ParamterScreen extends StatelessWidget {
             new FlatButton(
                 child: new Text('Back'),
                 onPressed: () {
-                  Navigator.push(
+                  Navigator.pop(
                     context,
-                    new MaterialPageRoute(
-                        builder: (context) => new MyHomePage()),
+                    true,
                   );
                 }),
             new FlatButton(
