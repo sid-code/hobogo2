@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           Navigator.push(
             context,
-            new MaterialPageRoute(builder: (context) => new _ParamterScreen()),
+            new MaterialPageRoute(builder: (context) => new _ParameterScreen()),
           );
         });
     _buttons.add(nextPage);
@@ -182,7 +182,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class _ParamterScreen extends StatelessWidget {
+class _ParameterScreen extends StatelessWidget {
+  GestureDetector start, end;
   Map<String, String> keys = {
     'Max Stay': 'maxstay',
     'Min Stay': 'minstay',
