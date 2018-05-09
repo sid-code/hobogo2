@@ -1,5 +1,3 @@
-// Provides a nice interface to the skypicker api
-
 package spapi
 
 import (
@@ -16,7 +14,7 @@ type TimeRange struct {
 	End   time.Time
 }
 
-// What you put in
+// A SearchParams object is fed into this API abstraction
 type SearchParams struct {
 	TimeWindow TimeRange
 	StartLoc   string
