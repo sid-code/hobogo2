@@ -205,6 +205,23 @@ class _ParameterScreen extends StatelessWidget {
         });
   }
 
+  GestureDetector _buildClickableDateField(String text, BuildContext context) {
+    return new GestureDetector(
+      onTap: () {
+        DateTime time;
+        showDatePicker(
+            context: context,
+            initialDate: new DateTime.now().add(new Duration(days: 1)),
+            firstDate: new DateTime.now(),
+            lastDate: DateTime.now().add(new Duration(days: 365))).then((dt) {
+          time = dt;
+          //setState(() {print('hi');});
+        });
+      },
+      child: new Text(text),
+    );
+  }
+
   void _sendPost() {
     Submit sub = new Submit();
     print(postData);
@@ -218,6 +235,8 @@ class _ParameterScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    start =_buildClickableDateField('Tap to select start date', context);
+    end =_buildClickableDateField('Tap to select end date', context);
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('Param Screen'),
@@ -236,6 +255,8 @@ class _ParameterScreen extends StatelessWidget {
                 kt: TextInputType.number, tif: oneLineNumbers),
             _genField('Number of Passengers',
                 kt: TextInputType.number, tif: oneLineNumbers),
+            start,
+            end,
             new FlatButton(
                 child: new Text('datepl'),
                 onPressed: () {
