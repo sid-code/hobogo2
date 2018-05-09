@@ -210,7 +210,7 @@ func addSorted(frontier []*Node, child *Node) []*Node {
 	var n *Node
 
 	for i, n = range frontier {
-		if child.depth >= n.depth && child.cumPrice <= n.cumPrice {
+		if n.depth < child.depth || n.cumPrice > child.cumPrice {
 			break
 		}
 	}
