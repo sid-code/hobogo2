@@ -1,2 +1,13 @@
-SpannerDatabase = "projects/hobo-on-the-go/instances/flight-cache/databases/flcache"
+#SpannerDatabase = "projects/hobo-on-the-go/instances/flight-cache/databases/flcache"
+
 FBinSize = 1000
+
+[postgres]
+Host = "localhost"
+Port = 5432
+
+User = "sid"
+Password = "password"
+
+Database = "flcache"
+SSLmode = "disable"
