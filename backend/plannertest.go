@@ -17,7 +17,7 @@ func main() {
 	days := time.Hour * 24
 	wind := spapi.TimeRange{
 		Start: time.Now(),
-		End:   time.Now().Add(30 * 24 * days),
+		End:   time.Now().Add(30 * days),
 	}
 
 	conf := planner.Config{
@@ -28,8 +28,8 @@ func main() {
 		MinStay:          days * 2,
 		FlightDiff:       time.Hour * 4,
 		MaxPrice:         1200,
-		MinLength:        6,
-		ConcurrentSearch: 10,
+		MinLength:        4,
+		ConcurrentSearch: 1,
 		Passengers:       2,
 	}
 
