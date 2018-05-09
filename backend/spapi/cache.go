@@ -1,31 +1,77 @@
 package spapi
 
 import (
-	"cloud.google.com/go/spanner"
-	_ "cloud.google.com/go/spanner/admin/database/apiv1" /* database */
-	"flights/util"
 	"fmt"
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq" // postgres driver
 	"golang.org/x/net/context"
-	"google.golang.org/api/iterator"
-	_ "google.golang.org/genproto/googleapis/spanner/admin/database/v1" /* adminpb */
 	"net/http"
 	"strings"
 	"time"
 )
 
+const schemaSQL = `
+CREATE TABLE IF NOT EXISTS flcache (
+	id            BIGINT NOT NULL PRIMARY KEY,
+	loc           TEXT NOT NULL,
+	frm           TEXT NOT NULL,
+	departTime    DATE NOT NULL,
+	arriveTime    DATE NOT NULL,
+	price         REAL NOT NULL,
+	deepLink      TEXT NOT NULL,
+	passengers    INTEGER NOT NULL,
+        UNIQUE(id)
+)
+`
+
+const searchSQL = `
+SELECT * FROM flcache
+WHERE loc IN ( %s )
+  AND frm = :frm
+  AND passengers = :passengers
+  AND departTime > :earliest
+  AND departTime < :latest
+ORDER BY price ASC
+LIMIT 40
+`
+
+const findDuplicateSQL = `
+SELECT * FROM flcache
+WHERE loc = :loc
+  AND frm = :frm
+  AND departTime = :departTime
+  AND arriveTime = :arriveTime
+  AND price = :price
+  AND passengers = :passengers
+`
+
+const removeSimilarSQL = `
+DELETE FROM flcache
+WHERE loc = :loc
+  AND frm = :frm
+  AND abs(departTime - :departTime) < :fbinsize
+  AND price > :price
+  AND passengers = :passengers
+`
+
+const insertSQL = `
+INSERT INTO flcache(id, loc, frm, departTime, arriveTime, price, deepLink, passengers)
+VALUES ( :id, :loc, :frm, :departTime, :arriveTime, :price, :deepLink, :passengers )
+`
+
+const deleteSQL = `
+DELETE FROM flcache WHERE id=:id
+`
+
 type Cache struct {
 	ctx      context.Context
-	client   *spanner.Client
+	db       *sqlx.DB
 	fbinsize time.Duration
 }
 
-func NewCache(ctx context.Context, db string, fbinsize time.Duration) (*Cache, error) {
-	cl, err := spanner.NewClient(ctx, db)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create spanner client: %v", err)
-	}
-	c := &Cache{ctx: ctx, client: cl, fbinsize: fbinsize}
-	err = c.init()
+func NewCache(ctx context.Context, db *sqlx.DB, fbinsize time.Duration) (*Cache, error) {
+	c := &Cache{ctx: ctx, db: db, fbinsize: fbinsize}
+	err := c.init()
 	if err != nil {
 		return nil, err
 	}
@@ -33,54 +79,36 @@ func NewCache(ctx context.Context, db string, fbinsize time.Duration) (*Cache, e
 }
 
 func (c *Cache) init() error {
-	return nil
-}
-
-func (c *Cache) Clear() error {
-	mut := spanner.Delete("flcache", spanner.KeyRange{
-		Start: spanner.Key{-9223372036854775808},
-		End:   spanner.Key{9223372036854775807},
-		Kind:  spanner.ClosedClosed,
-	})
-
-	_, err := c.client.Apply(c.ctx, []*spanner.Mutation{mut})
-
+	_, err := c.db.Exec(schemaSQL)
 	return err
 }
 
-func (c *Cache) search(params SearchParams) ([]*Flight, error) {
+func (c *Cache) Clear() error {
+	return nil
+}
+
+func (c *Cache) Search(params SearchParams) ([]*Flight, error) {
 	locList := "'" + strings.Join(params.DestList, "','") + "'"
 
-	sql := fmt.Sprintf(`SELECT * FROM flcache WHERE loc IN ( %s ) AND frm = @frm AND passengers = @passengers AND departTime > @earliest AND departTime < @latest ORDER BY price ASC`, locList)
+	sql := fmt.Sprintf(searchSQL, locList)
 	table := map[string]interface{}{
 		"frm":        params.StartLoc,
-		"earliest":   util.FormatSpannerTimestamp(params.TimeWindow.Start),
-		"latest":     util.FormatSpannerTimestamp(params.TimeWindow.End),
+		"earliest":   params.TimeWindow.Start,
+		"latest":     params.TimeWindow.End,
 		"passengers": params.Passengers,
 	}
-	stmt := spanner.Statement{
-		SQL:    sql,
-		Params: table,
+	rows, err := c.db.NamedQuery(sql, table)
+
+	if err != nil {
+		return nil, fmt.Errorf("Failed to search flights: %v", err)
 	}
-
-	op := c.client.Single()
-	iter := op.Query(c.ctx, stmt)
-
-	defer iter.Stop()
 
 	var result []*Flight
 
-	for {
+	for rows.Next() {
 		fl := &Flight{}
-		row, err := iter.Next()
-		if err == iterator.Done {
-			break
-		}
-		if err != nil {
-			return nil, fmt.Errorf("error while reading rows from response: %v", err)
-		}
 
-		err = row.ToStruct(fl)
+		err = rows.StructScan(fl)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan flight from db row: %v", err)
 		}
@@ -90,31 +118,33 @@ func (c *Cache) search(params SearchParams) ([]*Flight, error) {
 	return result, nil
 }
 
-func makeMutation(fl *Flight) *spanner.Mutation {
-	keys := []string{"id", "frm", "loc", "departTime", "arriveTime", "deepLink", "price", "passengers"}
-	vals := []interface{}{
-		fl.Id,
-		fl.From,
-		fl.Loc,
-		util.FormatSpannerTimestamp(fl.DepartTime),
-		util.FormatSpannerTimestamp(fl.ArriveTime),
-		fl.DeepLink,
-		fl.Price,
-		fl.Passengers,
+func (c *Cache) Insert(fl *Flight) error {
+	table := fl.FieldTable()
+	_, err := c.db.NamedExec(insertSQL, table)
+	if err != nil {
+		return fmt.Errorf("failed to insert flight: %v", err)
 	}
-	mut := spanner.Insert("flcache", keys, vals)
 
-	return mut
+	return nil
+}
+
+func (c *Cache) Delete(fl *Flight) error {
+	_, err := c.db.NamedExec(deleteSQL, map[string]interface{}{"id": fl.ID})
+	if err != nil {
+		return fmt.Errorf("failed to delete flight: %v", err)
+	}
+
+	return nil
 }
 
 func (c *Cache) searchFlights(cl *http.Client, params SearchParams, resc chan *Flight, errc chan error, finc chan bool) {
-	cached, err := c.search(params)
+	cached, err := c.Search(params)
 	if err != nil {
 		errc <- err
 		return
 	}
 
-	fmt.Printf("Got %d from cache\n", len(cached))
+	fmt.Printf("Got %d from cache: %s\n", len(cached), params)
 
 	for _, fl := range cached {
 		resc <- fl
@@ -126,19 +156,15 @@ func (c *Cache) searchFlights(cl *http.Client, params SearchParams, resc chan *F
 		return
 	}
 
-	var muts []*spanner.Mutation
+	fmt.Printf("But got %d from search\n", len(res))
 
 	for _, fl := range res {
 		resc <- fl
-		muts = append(muts, makeMutation(fl))
-		if len(muts) > 100 {
-			_, err = c.client.Apply(c.ctx, muts)
-			if err != nil {
-				errc <- err
-			}
-			muts = nil
+		err := c.Insert(fl)
+		if err != nil {
+			errc <- err
+			break
 		}
-
 	}
 
 	finc <- true

@@ -6,8 +6,9 @@ import (
 	"time"
 )
 
-func FormatSpannerTimestamp(t time.Time) string {
-	return t.Format("2006-01-02T15:04:05.45Z")
+func FormatPostgresTimestamp(t time.Time) string {
+	//return t.Format("2006-01-02T15:04:05.45Z")
+	return t.Format("2006-01-02")
 }
 
 func RandID() (int64, error) {

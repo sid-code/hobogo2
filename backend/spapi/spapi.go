@@ -24,20 +24,33 @@ type SearchParams struct {
 	Passengers int64
 }
 
-// What you get out
+// A Flight object (slice) is what is returned from this API abstraction
 type Flight struct {
-	Id         int64     `spanner:"id"`
-	Loc        string    `spanner:"loc"`
-	From       string    `spanner:"frm"`
-	DepartTime time.Time `spanner:"departTime"`
-	ArriveTime time.Time `spanner:"arriveTime"`
-	Price      float64   `spanner:"price"`
-	DeepLink   string    `spanner:"deepLink"`
-	Passengers int64     `spanner:"passengers"`
+	ID         int64     `db:"id"`
+	Loc        string    `db:"loc"`
+	From       string    `db:"frm"`
+	DepartTime time.Time `db:"departtime"`
+	ArriveTime time.Time `db:"arrivetime"`
+	Price      float64   `db:"price"`
+	DeepLink   string    `db:"deeplink"`
+	Passengers int64     `db:"passengers"`
 }
 
 func (fl *Flight) String() string {
 	return fmt.Sprintf("%s -> %s [%g]", fl.From, fl.Loc, fl.Price)
+}
+
+func (fl *Flight) FieldTable() map[string]interface{} {
+	return map[string]interface{}{
+		"id":         fl.ID,
+		"loc":        fl.Loc,
+		"frm":        fl.From,
+		"departTime": fl.DepartTime,
+		"arriveTime": fl.ArriveTime,
+		"price":      fl.Price,
+		"deepLink":   fl.DeepLink,
+		"passengers": fl.Passengers,
+	}
 }
 
 const endpointBaseURL = "https://api.skypicker.com"
@@ -56,10 +69,10 @@ func ExtractFlight(data map[string]interface{}) (*Flight, error) {
 
 	id, err := util.RandID()
 	if err != nil {
-		return nil, fmt.Errorf("failed to make an ID: %v")
+		return nil, fmt.Errorf("failed to make an ID: %v", err)
 	}
 
-	result.Id = id
+	result.ID = id
 
 	result.Loc, ok = data["flyTo"].(string)
 	if !ok {
