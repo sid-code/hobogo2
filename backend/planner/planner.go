@@ -265,7 +265,6 @@ func (pl *Planner) Search() {
 							addToFrontier <- child
 						}
 					case err := <-errc:
-						log.Println(err)
 						pl.errc <- err
 						return
 					case <-finc:
