@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -184,29 +184,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class _ParamterScreen extends StatelessWidget {
   Map<String, String> keys = {
-            'Max Stay': 'maxstay',
-            'Min Stay': 'minstay',
-            'Max Price': 'maxprice',
-            'Minimum Length': 'minlength',
-            'Number of Passengers': 'passengers'
+    'Max Stay': 'maxstay',
+    'Min Stay': 'minstay',
+    'Max Price': 'maxprice',
+    'Minimum Length': 'minlength',
+    'Number of Passengers': 'passengers'
   };
   Map<String, String> postData = new Map<String, String>();
-  TextField _genField(String hint, {TextInputType kt = TextInputType.text}) {
+  TextField _genField(String hint,
+      {TextInputType kt = TextInputType.text, List<TextInputFormatter> tif}) {
     return new TextField(
         keyboardType: kt,
         decoration: new InputDecoration(
           hintText: hint,
         ),
+        inputFormatters: tif,
         onChanged: (String newVal) {
           postData[keys[hint]] = newVal;
         });
   }
 
-  void _sendPost(){
+  void _sendPost() {
     Submit sub = new Submit();
     print(postData);
     sub.post(JSON.encode(postData), _url);
   }
+
+  List<TextInputFormatter> oneLineNumbers = [
+    WhitelistingTextInputFormatter.digitsOnly,
+    BlacklistingTextInputFormatter.singleLineFormatter
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -218,21 +225,26 @@ class _ParamterScreen extends StatelessWidget {
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            _genField('Max Stay', kt: TextInputType.number),
-            _genField('Min Stay', kt: TextInputType.number),
-            _genField('Max Price', kt: TextInputType.number),
-            _genField('Minimum Length', kt: TextInputType.number),
-            _genField('Number of Passengers', kt: TextInputType.number),
+            _genField('Max Stay',
+                kt: TextInputType.number, tif: oneLineNumbers),
+            _genField('Min Stay',
+                kt: TextInputType.number, tif: oneLineNumbers),
+            _genField('Max Price',
+                kt: TextInputType.number, tif: oneLineNumbers),
+            _genField('Minimum Length',
+                kt: TextInputType.number, tif: oneLineNumbers),
+            _genField('Number of Passengers',
+                kt: TextInputType.number, tif: oneLineNumbers),
             new FlatButton(
-              child: new Text('datepl'),
-              onPressed:() {
-                showDatePicker(
-                    context: context,
-                    initialDate: new DateTime.now().add(new Duration(days: 1)),
-                    firstDate: new DateTime.now(),
-                    lastDate: DateTime.now().add(new Duration(days: 365))
-                    );
-              }),
+                child: new Text('datepl'),
+                onPressed: () {
+                  showDatePicker(
+                      context: context,
+                      initialDate:
+                          new DateTime.now().add(new Duration(days: 1)),
+                      firstDate: new DateTime.now(),
+                      lastDate: DateTime.now().add(new Duration(days: 365)));
+                }),
             new FlatButton(
                 child: new Text('Back'),
                 onPressed: () {
