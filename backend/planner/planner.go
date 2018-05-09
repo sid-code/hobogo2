@@ -182,14 +182,19 @@ func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc 
 	for {
 		select {
 		case fl := <-searchResc:
+			fmt.Printf("DestList: %s  Got: %s  Price: %g\n", params.DestList, fl.Loc, fl.Price)
 			newNode := n.makeChild(fl)
 			if newNode == nil {
-				log.Fatalf("did I just get an invalid flight? %s %s", n.remaining, fl)
+				// lol idk why this happens
+				//log.Printf("did I just get an invalid flight? %s %s\n", n.remaining, fl)
+			} else {
+				if newNode.cumPrice <= config.MaxPrice-50 {
+					n.tryAddChild(newNode, config.FlightDiff)
+					childc <- newNode
+				} else {
+					fmt.Printf("Pruned a fat price\n")
+				}
 			}
-			if newNode.cumPrice <= config.MaxPrice {
-				n.tryAddChild(newNode, config.FlightDiff)
-			}
-			childc <- newNode
 		case err := <-searchErrc:
 			errc <- err
 			return
@@ -222,9 +227,11 @@ func (pl *Planner) Search() {
 	var frontier []*Node
 	frontier = append(frontier, pl.start)
 	for len(frontier) > 0 {
+		head := frontier[0]
+		fmt.Printf("State of the art: %s  price=%g\n", head.buildChain(), head.cumPrice)
 		var heads []*Node
 		nsearch := pl.config.ConcurrentSearch
-		if nsearch > len(frontier) {
+		if nsearch >= len(frontier) {
 			nsearch = len(frontier)
 			heads = frontier
 			frontier = nil
