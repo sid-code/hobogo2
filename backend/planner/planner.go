@@ -163,7 +163,8 @@ func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc 
 	dateTo := minTime(dateFrom.Add(config.MaxStay), config.TimeWindow.End)
 
 	if dateFrom.After(dateTo) {
-		errc <- fmt.Errorf("%s is after %s", dateFrom, dateTo)
+		//errc <- fmt.Errorf("%s is after %s", dateFrom, dateTo)
+		finc <- true
 		return
 	}
 
