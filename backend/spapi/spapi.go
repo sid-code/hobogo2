@@ -125,7 +125,6 @@ func SearchFlightsRaw(c *http.Client, params SearchParams) ([]*Flight, error) {
 	q.Add("curr", "USD")
 	q.Add("sort", "price")
 	req.URL.RawQuery = q.Encode()
-	fmt.Println(req.URL.RawQuery)
 
 	resp, err := c.Do(req)
 	if err != nil {
