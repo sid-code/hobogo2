@@ -114,9 +114,9 @@ func (n *Node) makeChild(fl *spapi.Flight) *Node {
 func minTime(t1, t2 time.Time) time.Time {
 	if t1.After(t2) {
 		return t2
-	} else {
-		return t1
 	}
+
+	return t1
 }
 
 func (n *Node) tryAddChild(c *Node, flightDiff time.Duration) int {
