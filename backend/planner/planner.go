@@ -3,7 +3,7 @@ package planner
 import (
 	"flights/spapi"
 	"fmt"
-	"log"
+	_ "log"
 	"time"
 )
 
@@ -23,12 +23,13 @@ type Config struct {
 }
 
 type Node struct {
-	fl        *spapi.Flight
-	remaining []string
-	depth     int32
-	cumPrice  float64
-	parent    *Node
-	children  []*Node
+	fl          *spapi.Flight
+	remaining   []string
+	depth       int32
+	cumPrice    float64
+	parent      *Node
+	children    []*Node
+	penultimate bool // Is this a penultimate node?
 }
 
 type Planner struct {
@@ -51,12 +52,13 @@ func NewPlanner(config Config, cl *spapi.Client) *Planner {
 		Passengers: 0,
 	}
 	start := &Node{
-		fl:        fakeFlight,
-		remaining: config.DestList,
-		depth:     0,
-		cumPrice:  0,
-		parent:    nil,
-		children:  nil,
+		fl:          fakeFlight,
+		remaining:   config.DestList,
+		depth:       0,
+		cumPrice:    0,
+		parent:      nil,
+		children:    nil,
+		penultimate: false,
 	}
 
 	return &Planner{
@@ -75,29 +77,35 @@ func (pl *Planner) Channels() (chan []*spapi.Flight, chan error, chan bool) {
 
 func (n *Node) makeChild(fl *spapi.Flight) *Node {
 	var newRlocs []string
+	found := false
 
-	newRlocs = make([]string, len(n.remaining)-1)
+	//newRlocs = make([]string, len(n.remaining)-1)
 
-	for i, rl := range n.remaining {
-		if rl == fl.Loc {
-			copy(newRlocs, n.remaining[:i])
-			copy(newRlocs[i:], n.remaining[i+1:])
-			fmt.Printf("old: %s, cutout: %s, new: %s\n", n.remaining, newRlocs, fl.Loc)
-			break
+	for _, rl := range n.remaining {
+		if rl != fl.Loc {
+			newRlocs = append(newRlocs, rl)
+		} else {
+			found = true
 		}
+		//if rl == fl.Loc {
+		//	copy(newRlocs, n.remaining[:i])
+		//	copy(newRlocs[i:], n.remaining[i+1:])
+		//	break
+		//}
 	}
 
-	if newRlocs == nil {
+	if !found {
 		return nil
 	}
 
 	node := &Node{
-		fl:        fl,
-		remaining: newRlocs,
-		depth:     n.depth + 1,
-		cumPrice:  n.cumPrice + fl.Price,
-		parent:    n,
-		children:  nil,
+		fl:          fl,
+		remaining:   newRlocs,
+		depth:       n.depth + 1,
+		cumPrice:    n.cumPrice + fl.Price,
+		parent:      n,
+		children:    nil,
+		penultimate: n.penultimate,
 	}
 
 	return node
@@ -241,8 +249,9 @@ func (pl *Planner) Search() {
 						if child.fl.Loc == pl.config.HomeLoc {
 							pl.resc <- child.buildChain()
 						} else {
-							if child.depth+1 >= pl.config.MinLength {
+							if child.depth+1 >= pl.config.MinLength && !child.penultimate {
 								child.remaining = append(child.remaining, pl.config.HomeLoc)
+								child.penultimate = true
 							}
 
 							addToFrontier <- child
