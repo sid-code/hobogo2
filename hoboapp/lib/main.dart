@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:csv/csv.dart';
 import 'fuzzy.dart';
 import 'levenshtein.dart';
+import 'submit.dart';
 
 List<List<dynamic>> _airportList;
 Fuzzy _fuzz;
+String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
 
 void main() async {
   _init();
@@ -181,6 +183,13 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class _ParamterScreen extends StatelessWidget {
+  Map<String, String> keys = {
+            'Max Stay': 'maxstay',
+            'Min Stay': 'minstay',
+            'Max Price': 'maxprice',
+            'Minimum Length': 'minlength',
+            'Number of Passengers': 'passengers'
+  };
   Map<String, String> postData = new Map<String, String>();
   TextField _genField(String hint, {TextInputType kt = TextInputType.text}) {
     return new TextField(
@@ -189,8 +198,14 @@ class _ParamterScreen extends StatelessWidget {
           hintText: hint,
         ),
         onChanged: (String newVal) {
-          postData[hint] = newVal;
+          postData[keys[hint]] = newVal;
         });
+  }
+
+  void _sendPost(){
+    Submit sub = new Submit();
+    print(postData);
+    sub.post(JSON.encode(postData), _url);
   }
 
   @override
@@ -229,6 +244,7 @@ class _ParamterScreen extends StatelessWidget {
             new FlatButton(
                 child: new Text('Submit'),
                 onPressed: () {
+                  _sendPost();
                   print('Submit');
                 }),
           ],
