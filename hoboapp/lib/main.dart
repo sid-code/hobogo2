@@ -94,7 +94,6 @@ class _MyHomePageState extends State<MyHomePage> {
           print(text.data);
           print(_curInputIndex);
           setState(() {
-            //TODO: Do something with 'controller' to set the active text, not hint as I am doing now https://docs.flutter.io/flutter/material/TextField-class.html
             _inputList[_curInputIndex] =
                 _buildTextField(_curInputIndex, data: text.data);
             print(_inputList[_curInputIndex].toString());
