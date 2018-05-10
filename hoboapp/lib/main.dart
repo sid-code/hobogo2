@@ -191,7 +191,6 @@ class ParameterScreen extends StatefulWidget {
 
 class _ParameterScreenState extends State<ParameterScreen> {
   GestureDetector start, end;
-  DateTime startTime, endTime;
   Map<String, String> keys = {
     'Max Stay': 'maxstay',
     'Min Stay': 'minstay',
@@ -209,7 +208,9 @@ class _ParameterScreenState extends State<ParameterScreen> {
         ),
         inputFormatters: tif,
         onChanged: (String newVal) {
-          postData[keys[hint]] = newVal;
+          if (tif == oneLineNumbers) {
+            postData[keys[hint]] = int.tryParse(newVal);
+          }
         });
   }
 
