@@ -222,16 +222,17 @@ class _ParameterScreenState extends State<ParameterScreen> {
     return new GestureDetector(
       onTap: () {
         showDatePicker(
-            context: context,
-            initialDate: new DateTime.now().add(new Duration(days: 1)),
-            firstDate: new DateTime.now(),
-            lastDate: DateTime.now().add(new Duration(days: 365))).then((dt) {
+                context: context,
+                initialDate: new DateTime.now().add(new Duration(days: 1)),
+                firstDate: new DateTime.now(),
+                lastDate: DateTime.now().add(new Duration(days: 365)))
+            .then((DateTime dt) {
           setState(() {
             if (index == 0) {
-              startTime = dt;
+              postData['startTime'] = dt.millisecondsSinceEpoch;
               start = _buildClickableDateField(dt.toString(), context, index);
             } else if (index == 1) {
-              endTime = dt;
+              postData['endTime'] = dt.millisecondsSinceEpoch;
               end = _buildClickableDateField(dt.toString(), context, index);
             }
           });
