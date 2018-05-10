@@ -24,7 +24,7 @@ void _init() async {
   final csvCodec = new CsvCodec();
   String temp = await rootBundle.loadString('data/airport-codes.csv');
   _airportList = const CsvToListConverter().convert(temp);
-  for(int i = 0;i < _airportList.length;i++){
+  for (int i = 0; i < _airportList.length; i++) {
     _nameToCode[_airportList[i][2]] = _airportList[i][10].toString();
   }
   _fuzz = new Fuzzy();
@@ -131,8 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
       controller: cont,
       onChanged: (String str) => _search(str, index),
       onSubmitted: (String str) {
-        setState(() {
-        });
+        setState(() {});
       },
     );
     return _homeCity;
