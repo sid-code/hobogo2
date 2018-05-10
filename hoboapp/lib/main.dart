@@ -10,6 +10,7 @@ import 'submit.dart';
 
 List<List<dynamic>> _airportList;
 Map<String, dynamic> postData = new Map<String, dynamic>();
+Map<String, String> _nameToCode = new Map<String, String>();
 Fuzzy _fuzz;
 String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
 
@@ -22,6 +23,9 @@ void _init() async {
   final csvCodec = new CsvCodec();
   String temp = await rootBundle.loadString('data/airport-codes.csv');
   _airportList = const CsvToListConverter().convert(temp);
+  for(int i = 0;i < _airportList.length;i++){
+    _nameToCode[_airportList[i][2]] = _airportList[i][10].toString();
+  }
   _fuzz = new Fuzzy();
 }
 
@@ -58,10 +62,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _resultList = [];
   List<Widget> _inputList = [];
+  List<String> _codeList = [];
+  List<String> _currentAirportCodes = [];
   int _curInputIndex = 0;
 
   void _search(String value, int index) {
-    List<dynamic> _results = [];
+    List<dynamic> results = [];
+    List<String> codes = [];
     if (value.length > 2) {
       for (int i = 0; i < _airportList.length; i++) {
         //For now just search name
@@ -69,14 +76,16 @@ class _MyHomePageState extends State<MyHomePage> {
         String curCode = _airportList[i][10].toString();
         int index = _fuzz.bitapSearch(curName, value, 2);
         if (index == 0) {
-          _results.add(curName);
+          results.add(curName);
+          codes.add(curCode);
           //Weight results maybe?
           //print(levenshtein(curName, value, caseSensitive: false));
         }
       }
       //Redraw UI with updated elements
       setState(() {
-        _resultList = _buildList(_results);
+        _resultList = _buildList(results);
+        _codeList = codes;
         _curInputIndex = index;
       });
     }
