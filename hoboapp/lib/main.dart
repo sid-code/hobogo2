@@ -280,16 +280,6 @@ class _ParameterScreenState extends State<ParameterScreen> {
             start,
             end,
             new FlatButton(
-                child: new Text('datepl'),
-                onPressed: () {
-                  showDatePicker(
-                      context: context,
-                      initialDate:
-                          new DateTime.now().add(new Duration(days: 1)),
-                      firstDate: new DateTime.now(),
-                      lastDate: DateTime.now().add(new Duration(days: 365)));
-                }),
-            new FlatButton(
                 child: new Text('Back'),
                 onPressed: () {
                   Navigator.pop(
