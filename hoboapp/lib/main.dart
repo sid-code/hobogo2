@@ -104,11 +104,10 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             _inputList[_curInputIndex] =
                 _buildTextField(_curInputIndex, data: text.data);
-            print(text.data);
-            print(_nameToCode[text.data]);
             _resultList = [];
             _curInputIndex++;
             _inputList.add(_buildTextField(_curInputIndex));
+            _currentAirportCodes.add(_nameToCode[text.data]);
           });
         },
       );
