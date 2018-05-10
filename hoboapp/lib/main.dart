@@ -11,6 +11,7 @@ import 'submit.dart';
 List<List<dynamic>> _airportList;
 Map<String, dynamic> postData = new Map<String, dynamic>();
 Map<String, String> _nameToCode = new Map<String, String>();
+List<String> _currentAirportCodes = [];
 Fuzzy _fuzz;
 String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
 
@@ -63,7 +64,6 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _resultList = [];
   List<Widget> _inputList = [];
   List<String> _codeList = [];
-  List<String> _currentAirportCodes = [];
   int _curInputIndex = 0;
 
   void _search(String value, int index) {
