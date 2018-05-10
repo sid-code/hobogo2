@@ -199,7 +199,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
     'Minimum Length': 'minlength',
     'Number of Passengers': 'passengers'
   };
-  Map<String, String> postData = new Map<String, String>();
+  Map<String, dynamic> postData = new Map<String, dynamic>();
   TextField _genField(String hint,
       {TextInputType kt = TextInputType.text, List<TextInputFormatter> tif}) {
     return new TextField(
