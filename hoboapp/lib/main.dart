@@ -9,6 +9,7 @@ import 'levenshtein.dart';
 import 'submit.dart';
 
 List<List<dynamic>> _airportList;
+Map<String, dynamic> postData = new Map<String, dynamic>();
 Fuzzy _fuzz;
 String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
 
@@ -198,7 +199,6 @@ class _ParameterScreenState extends State<ParameterScreen> {
     'Minimum Length': 'minlength',
     'Number of Passengers': 'passengers'
   };
-  Map<String, dynamic> postData = new Map<String, dynamic>();
   TextField _genField(String hint,
       {TextInputType kt = TextInputType.text, List<TextInputFormatter> tif}) {
     return new TextField(
