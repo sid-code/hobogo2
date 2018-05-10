@@ -101,12 +101,14 @@ class _MyHomePageState extends State<MyHomePage> {
       FlatButton but = new FlatButton(
         child: text,
         onPressed: () {
-          print(text.data);
-          print(_curInputIndex);
           setState(() {
             _inputList[_curInputIndex] =
                 _buildTextField(_curInputIndex, data: text.data);
-            print(_inputList[_curInputIndex].toString());
+            print(text.data);
+            print(_nameToCode[text.data]);
+            _resultList = [];
+            _curInputIndex++;
+            _inputList.add(_buildTextField(_curInputIndex));
           });
         },
       );
@@ -131,9 +133,6 @@ class _MyHomePageState extends State<MyHomePage> {
       onChanged: (String str) => _search(str, index),
       onSubmitted: (String str) {
         setState(() {
-          _curInputIndex++;
-          _inputList.add(_buildTextField(_curInputIndex));
-          _resultList = [];
         });
       },
     );
