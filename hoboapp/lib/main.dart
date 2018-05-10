@@ -191,6 +191,7 @@ class ParameterScreen extends StatefulWidget {
 
 class _ParameterScreenState extends State<ParameterScreen> {
   GestureDetector start, end;
+  DateTime startTime, endTime;
   Map<String, String> keys = {
     'Max Stay': 'maxstay',
     'Min Stay': 'minstay',
@@ -212,17 +213,27 @@ class _ParameterScreenState extends State<ParameterScreen> {
         });
   }
 
-  GestureDetector _buildClickableDateField(String text, BuildContext context) {
+  //TODO: Check if end > start, give warning
+  GestureDetector _buildClickableDateField(
+      String text, BuildContext context, int index) {
+    // index == 0 : start
+    // index == 1 : end
     return new GestureDetector(
       onTap: () {
-        DateTime time;
         showDatePicker(
             context: context,
             initialDate: new DateTime.now().add(new Duration(days: 1)),
             firstDate: new DateTime.now(),
             lastDate: DateTime.now().add(new Duration(days: 365))).then((dt) {
-          time = dt;
-          //setState(() {print('hi');});
+          setState(() {
+            if (index == 0) {
+              startTime = dt;
+              start = _buildClickableDateField(dt.toString(), context, index);
+            } else if (index == 1) {
+              endTime = dt;
+              end = _buildClickableDateField(dt.toString(), context, index);
+            }
+          });
         });
       },
       child: new Text(text),
@@ -240,10 +251,14 @@ class _ParameterScreenState extends State<ParameterScreen> {
     BlacklistingTextInputFormatter.singleLineFormatter
   ];
 
+  bool firstRun = false;
   @override
   Widget build(BuildContext context) {
-    start =_buildClickableDateField('Tap to select start date', context);
-    end =_buildClickableDateField('Tap to select end date', context);
+    if (!firstRun) {
+      start = _buildClickableDateField('Tap to select start date', context, 0);
+      end = _buildClickableDateField('Tap to select end date', context, 1);
+      firstRun = !firstRun;
+    }
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('Param Screen'),
