@@ -26,8 +26,8 @@ type Node struct {
 	fl          *spapi.Flight
 	remaining   []string
 	depth       int32
-	cumPrice    float64
-	parent      *Node
+	CumPrice    float64
+	Parent      *Node
 	children    []*Node
 	penultimate bool // Is this a penultimate node?
 }
@@ -55,8 +55,8 @@ func NewPlanner(config Config, cl *spapi.Client) *Planner {
 		fl:          fakeFlight,
 		remaining:   config.DestList,
 		depth:       0,
-		cumPrice:    0,
-		parent:      nil,
+		CumPrice:    0,
+		Parent:      nil,
 		children:    nil,
 		penultimate: false,
 	}
@@ -102,8 +102,8 @@ func (n *Node) makeChild(fl *spapi.Flight) *Node {
 		fl:          fl,
 		remaining:   newRlocs,
 		depth:       n.depth + 1,
-		cumPrice:    n.cumPrice + fl.Price,
-		parent:      n,
+		CumPrice:    n.CumPrice + fl.Price,
+		Parent:      n,
 		children:    nil,
 		penultimate: n.penultimate,
 	}
@@ -148,7 +148,7 @@ func (n *Node) buildChain() []*spapi.Flight {
 
 	for {
 		result = append([]*spapi.Flight{nn.fl}, result...)
-		nn = nn.parent
+		nn = nn.Parent
 		if nn == nil {
 			break
 		}
@@ -188,7 +188,7 @@ func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc 
 				// lol idk why this happens
 				//log.Printf("did I just get an invalid flight? %s %s\n", n.remaining, fl)
 			} else {
-				if newNode.cumPrice <= config.MaxPrice-50 {
+				if newNode.CumPrice <= config.MaxPrice-50 {
 					n.tryAddChild(newNode, config.FlightDiff)
 					childc <- newNode
 				} else {
@@ -210,7 +210,7 @@ func addSorted(frontier []*Node, child *Node) []*Node {
 	var n *Node
 
 	for i, n = range frontier {
-		if n.depth < child.depth || n.cumPrice > child.cumPrice {
+		if n.depth < child.depth || n.CumPrice > child.CumPrice {
 			break
 		}
 	}
@@ -228,7 +228,7 @@ func (pl *Planner) Search() {
 	frontier = append(frontier, pl.start)
 	for len(frontier) > 0 {
 		head := frontier[0]
-		fmt.Printf("State of the art: %s  price=%g\n", head.buildChain(), head.cumPrice)
+		fmt.Printf("State of the art: %s  price=%g\n", head.buildChain(), head.CumPrice)
 		var heads []*Node
 		nsearch := pl.config.ConcurrentSearch
 		if nsearch >= len(frontier) {
