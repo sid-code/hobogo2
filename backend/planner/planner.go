@@ -36,7 +36,7 @@ type Planner struct {
 	config Config
 	start  *Node
 	cl     *spapi.Client
-	resc   chan []*spapi.Flight
+	resc   chan *Node
 	errc   chan error
 	finc   chan bool
 }
@@ -65,13 +65,13 @@ func NewPlanner(config Config, cl *spapi.Client) *Planner {
 		config: config,
 		start:  start,
 		cl:     cl,
-		resc:   make(chan []*spapi.Flight),
+		resc:   make(chan *Node),
 		errc:   make(chan error),
 		finc:   make(chan bool),
 	}
 }
 
-func (pl *Planner) Channels() (chan []*spapi.Flight, chan error, chan bool) {
+func (pl *Planner) Channels() (chan *Node, chan error, chan bool) {
 	return pl.resc, pl.errc, pl.finc
 }
 
@@ -255,7 +255,7 @@ func (pl *Planner) Search() {
 					select {
 					case child := <-childc:
 						if child.fl.Loc == pl.config.HomeLoc {
-							pl.resc <- child.buildChain()
+							pl.resc <- child
 						} else {
 							fmt.Printf("DEPTH: %d LIMIT: %d\n", child.depth, pl.config.MinLength)
 							if int64(child.depth+1) >= pl.config.MinLength && !child.penultimate {
