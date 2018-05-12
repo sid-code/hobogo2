@@ -7,18 +7,23 @@ import (
 	"time"
 )
 
+type Server struct {
+	Host string
+	Port int64
+}
+
 type Postgres struct {
-	Host     string
+	Server
 	User     string
-	Port     int64
 	Password string
 	Database string
 	SSLmode  string
 }
 
 type Config struct {
-	Postgres Postgres
-	FBinSize time.Duration
+	Postgres  Postgres
+	WebServer Server
+	FBinSize  time.Duration
 }
 
 type duration struct {
