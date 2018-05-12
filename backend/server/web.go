@@ -145,9 +145,14 @@ func (s *FlightSearchServer) search(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fmt.Printf("GO GO GO GO\n")
 		go search.Search()
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
+
+		result := struct {
+			Token string `json:"token"`
+		}{Token: search.ID.String()}
+		json.NewEncoder(w).Encode(&result)
 		break
 
 	default:
