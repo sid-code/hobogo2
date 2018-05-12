@@ -140,7 +140,7 @@ func (n *Node) String() string {
 	return fmt.Sprintf("%s (depth=%d)", n.fl.String(), n.depth)
 }
 
-func (n *Node) buildChain() []*spapi.Flight {
+func (n *Node) BuildChain() []*spapi.Flight {
 	var result []*spapi.Flight
 	var nn *Node
 
@@ -228,7 +228,7 @@ func (pl *Planner) Search() {
 	frontier = append(frontier, pl.start)
 	for len(frontier) > 0 {
 		head := frontier[0]
-		fmt.Printf("State of the art: %s  price=%g\n", head.buildChain(), head.CumPrice)
+		fmt.Printf("State of the art: %s  price=%g\n", head.BuildChain(), head.CumPrice)
 		var heads []*Node
 		nsearch := pl.config.ConcurrentSearch
 		if nsearch >= len(frontier) {
