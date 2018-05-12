@@ -60,14 +60,22 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<Widget> _resultList = [];
-  List<Widget> _inputList = [];
+class _MyHomePageState extends State<MyHomePage>
+    with AutomaticKeepAliveClientMixin<MyHomePage> {
+  @override
+  bool get wantKeepAlive => true;
+  // List of all strings matching search
+  List<String> _resultList = [];
+  // List of all airport codes matching search
   List<String> _codeList = [];
+  // List of text to be put into TextFields
+  List<String> _selectedList = [];
   int _curInputIndex = 0;
+  ScrollController sc = new ScrollController();
+  int _textFieldCount = 1;
 
   void _search(String value, int index) {
-    List<dynamic> results = [];
+    List<String> results = [];
     List<String> codes = [];
     if (value.length > 2) {
       for (int i = 0; i < _airportList.length; i++) {
@@ -82,15 +90,14 @@ class _MyHomePageState extends State<MyHomePage> {
           //print(levenshtein(curName, value, caseSensitive: false));
         }
       }
-      //Redraw UI with updated elements
       setState(() {
-        _resultList = _buildList(results);
+        _resultList = results;
         _codeList = codes;
         _curInputIndex = index;
       });
     }
   }
-
+/*
   List<Widget> _buildList(List<dynamic> list) {
     //Build our widgets to display results
     //ListTile to display more info later
@@ -115,76 +122,132 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return retVal;
   }
+*/
 
-  TextField _buildTextField(int index, {String data: ''}) {
+  TextField _buildTextField(int index) {
+    // Hint Text
     String contents = '';
+    // Active Text
+    String data = '';
+    // If we user has selected something
+    if (index >= _selectedList.length) {
+      _selectedList.length = index + 1;
+    }
+    data = _selectedList[index];
     if (index == 0) {
       contents = 'Home City';
     } else {
       contents = 'Destination City ' + index.toString();
     }
     TextEditingController cont = new TextEditingController(text: data);
-    TextField _homeCity = new TextField(
+    if (data != null) {
+      cont.selection =
+          new TextSelection(baseOffset: data.length, extentOffset: data.length);
+    }
+    TextField field = new TextField(
       decoration: new InputDecoration(
         hintText: contents,
       ),
       controller: cont,
-      onChanged: (String str) => _search(str, index),
-      onSubmitted: (String str) {
-        setState(() {});
+      onChanged: (String str) {
+        _search(str, index);
+        _selectedList[index] = str;
+        print(_selectedList[index]);
       },
     );
-    return _homeCity;
+    KeepAlive retVal = new KeepAlive(child: field, keepAlive: true);
+    return field;
+  }
+
+  FlatButton _buildResultButtons(int index) {
+    index = index - _textFieldCount;
+    FlatButton retVal = new FlatButton(
+        child: new Text(_resultList[index]),
+        onPressed: () {
+          _selectedList.length = _textFieldCount;
+          print('tap');
+          print(_selectedList.length);
+          print(index);
+          print(_textFieldCount);
+          print(index - _textFieldCount);
+          print(_curInputIndex);
+          _selectedList[_curInputIndex] = _resultList[index];
+          _resultList = [];
+          _textFieldCount++;
+          setState((){sc.jumpTo(0.0);});
+          //save code
+        });
+
+    return retVal;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _buttons = [];
-    FlatButton nextPage = new FlatButton(
-        child: new Text('Next'),
-        onPressed: () {
-          Navigator.push(
-            context,
-            new MaterialPageRoute(builder: (context) => new ParameterScreen()),
-          );
-        });
-    _buttons.add(nextPage);
-    // Initialization of elements
-    if (_resultList.length == 0) {
-      _resultList.add(new Text(''));
-    }
-    if (_inputList.length == 0) {
-      _inputList.add(_buildTextField(0));
-    }
     // Top 'appBar' bar
     return new Scaffold(
-      appBar: new AppBar(
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.lightbulb_outline),
-          ),
-          new IconButton(
-            icon: new Icon(Icons.search),
-          ),
-          new IconButton(
-            icon: new Icon(Icons.card_travel),
-          ),
-        ],
-      ),
-      // Main Body
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            new Flexible(
-              child: new ListView(
-                children: _inputList + _resultList + _buttons,
-              ),
+        appBar: new AppBar(
+          actions: <Widget>[
+            new IconButton(
+              icon: new Icon(Icons.lightbulb_outline),
+            ),
+            new IconButton(
+              icon: new Icon(Icons.search),
+            ),
+            new IconButton(
+              icon: new Icon(Icons.card_travel),
             ),
           ],
         ),
-      ),
-    );
+        // Main Body
+        body: new Column(children: <Widget>[
+          new Flexible(
+              child: new ListView.custom(
+                controller: sc,
+            childrenDelegate: new SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                if (index < _textFieldCount) {
+                  return _buildTextField(index);
+                } else {
+                  return _buildResultButtons(index);
+                }
+              },
+              childCount: _resultList.length + _textFieldCount,
+              addAutomaticKeepAlives: true,
+            ),
+          )
+
+              /*     new ListView.builder(
+            itemCount: _resultList.length + _textFieldCount,
+            itemBuilder: (BuildContext context, int index) {
+              if (index < _textFieldCount) {
+                return _buildTextField(index);
+              } else {
+                return _buildResultButtons(index);
+              }
+              /*
+              if (index < _inputList.length) {
+                return _inputList[index];
+              } else {
+                print('index - inputlen');
+                print(index - _inputList.length);
+                return _resultList[index - _inputList.length];
+              }
+              ;
+              */
+            },
+          )*/
+              ),
+        ]),
+        floatingActionButton: new FloatingActionButton(
+            child: new Icon(IconData(0xe409,
+                fontFamily: 'MaterialIcons', matchTextDirection: true)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(
+                    builder: (context) => new ParameterScreen()),
+              );
+            }));
   }
 }
 
