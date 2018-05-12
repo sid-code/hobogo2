@@ -12,7 +12,7 @@ import (
 )
 
 type Search struct {
-	id          uuid.UUID
+	ID          uuid.UUID
 	planner     *planner.Planner
 	subscribers []*websocket.Conn
 	backlog     [][]*spapi.Flight
@@ -36,7 +36,7 @@ func newSearch(config planner.Config, cl *spapi.Client) (*Search, error) {
 
 	plnr := planner.NewPlanner(config, cl)
 	return &Search{
-		id:          token,
+		ID:          token,
 		planner:     plnr,
 		subscribers: nil,
 		backlog:     nil,
@@ -74,7 +74,7 @@ func (s *Search) finish() {
 			log.Fatal(err)
 		}
 	}
-	delete(s.mgr.searches, s.id)
+	delete(s.mgr.searches, s.ID)
 }
 
 func (s *Search) Search() {
@@ -102,7 +102,7 @@ func (sm *SearchManager) NewSearch(config planner.Config, cl *spapi.Client) (*Se
 	}
 
 	s.mgr = sm
-	sm.searches[s.id] = s
+	sm.searches[s.ID] = s
 
 	return s, nil
 }
