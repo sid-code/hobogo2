@@ -15,7 +15,7 @@ type Config struct {
 	MaxStay, MinStay time.Duration
 	FlightDiff       time.Duration
 	MaxPrice         float64
-	MinLength        int32
+	MinLength        int64
 	Passengers       int64
 
 	// Search options
@@ -257,7 +257,8 @@ func (pl *Planner) Search() {
 						if child.fl.Loc == pl.config.HomeLoc {
 							pl.resc <- child.buildChain()
 						} else {
-							if child.depth+1 >= pl.config.MinLength && !child.penultimate {
+							fmt.Printf("DEPTH: %d LIMIT: %d\n", child.depth, pl.config.MinLength)
+							if int64(child.depth+1) >= pl.config.MinLength && !child.penultimate {
 								child.remaining = append(child.remaining, pl.config.HomeLoc)
 								child.penultimate = true
 							}
