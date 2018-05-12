@@ -9,6 +9,9 @@ import 'levenshtein.dart';
 import 'submit.dart';
 
 List<List<dynamic>> _airportList;
+Map<String, dynamic> postData = new Map<String, dynamic>();
+Map<String, String> _nameToCode = new Map<String, String>();
+List<String> _currentAirportCodes = [];
 Fuzzy _fuzz;
 String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
 
@@ -21,6 +24,9 @@ void _init() async {
   final csvCodec = new CsvCodec();
   String temp = await rootBundle.loadString('data/airport-codes.csv');
   _airportList = const CsvToListConverter().convert(temp);
+  for (int i = 0; i < _airportList.length; i++) {
+    _nameToCode[_airportList[i][2]] = _airportList[i][10].toString();
+  }
   _fuzz = new Fuzzy();
 }
 
@@ -54,33 +60,44 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<Widget> _resultList = [];
-  List<Widget> _inputList = [];
+class _MyHomePageState extends State<MyHomePage>
+    with AutomaticKeepAliveClientMixin<MyHomePage> {
+  @override
+  bool get wantKeepAlive => true;
+  // List of all strings matching search
+  List<String> _resultList = [];
+  // List of all airport codes matching search
+  List<String> _codeList = [];
+  // List of text to be put into TextFields
+  List<String> _selectedList = [];
   int _curInputIndex = 0;
+  ScrollController sc = new ScrollController();
+  int _textFieldCount = 1;
 
   void _search(String value, int index) {
-    List<dynamic> _results = [];
+    List<String> results = [];
+    List<String> codes = [];
     if (value.length > 2) {
       for (int i = 0; i < _airportList.length; i++) {
         //For now just search name
         String curName = _airportList[i][2];
-        //String curCode = _airportList[i][10];
+        String curCode = _airportList[i][10].toString();
         int index = _fuzz.bitapSearch(curName, value, 2);
         if (index == 0) {
-          _results.add(curName);
+          results.add(curName);
+          codes.add(curCode);
           //Weight results maybe?
           //print(levenshtein(curName, value, caseSensitive: false));
         }
       }
-      //Redraw UI with updated elements
       setState(() {
-        _resultList = _buildList(_results);
+        _resultList = results;
+        _codeList = codes;
         _curInputIndex = index;
       });
     }
   }
-
+/*
   List<Widget> _buildList(List<dynamic> list) {
     //Build our widgets to display results
     //ListTile to display more info later
@@ -91,13 +108,13 @@ class _MyHomePageState extends State<MyHomePage> {
       FlatButton but = new FlatButton(
         child: text,
         onPressed: () {
-          print(text.data);
-          print(_curInputIndex);
           setState(() {
-            //TODO: Do something with 'controller' to set the active text, not hint as I am doing now https://docs.flutter.io/flutter/material/TextField-class.html
             _inputList[_curInputIndex] =
                 _buildTextField(_curInputIndex, data: text.data);
-            print(_inputList[_curInputIndex].toString());
+            _resultList = [];
+            _curInputIndex++;
+            _inputList.add(_buildTextField(_curInputIndex));
+            _currentAirportCodes.add(_nameToCode[text.data]);
           });
         },
       );
@@ -105,84 +122,144 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return retVal;
   }
+*/
 
-  TextField _buildTextField(int index, {String data: ''}) {
+  TextField _buildTextField(int index) {
+    // Hint Text
     String contents = '';
+    // Active Text
+    String data = '';
+    // If we user has selected something
+    if (index >= _selectedList.length) {
+      _selectedList.length = index + 1;
+    }
+    data = _selectedList[index];
     if (index == 0) {
       contents = 'Home City';
     } else {
       contents = 'Destination City ' + index.toString();
     }
     TextEditingController cont = new TextEditingController(text: data);
-    TextField _homeCity = new TextField(
+    if (data != null) {
+      cont.selection =
+          new TextSelection(baseOffset: data.length, extentOffset: data.length);
+    }
+    TextField field = new TextField(
       decoration: new InputDecoration(
         hintText: contents,
       ),
       controller: cont,
-      onChanged: (String str) => _search(str, index),
-      onSubmitted: (String str) {
-        setState(() {
-          _curInputIndex++;
-          _inputList.add(_buildTextField(_curInputIndex));
-          _resultList = [];
-        });
+      onChanged: (String str) {
+        _search(str, index);
+        _selectedList[index] = str;
+        print(_selectedList[index]);
       },
     );
-    return _homeCity;
+    KeepAlive retVal = new KeepAlive(child: field, keepAlive: true);
+    return field;
+  }
+
+  FlatButton _buildResultButtons(int index) {
+    index = index - _textFieldCount;
+    FlatButton retVal = new FlatButton(
+        child: new Text(_resultList[index]),
+        onPressed: () {
+          _selectedList.length = _textFieldCount;
+          print('tap');
+          print(_selectedList.length);
+          print(index);
+          print(_textFieldCount);
+          print(index - _textFieldCount);
+          print(_curInputIndex);
+          _selectedList[_curInputIndex] = _resultList[index];
+          _resultList = [];
+          _textFieldCount++;
+          setState((){sc.jumpTo(0.0);});
+          //save code
+        });
+
+    return retVal;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _buttons = [];
-    FlatButton nextPage = new FlatButton(
-        child: new Text('Next'),
-        onPressed: () {
-          Navigator.push(
-            context,
-            new MaterialPageRoute(builder: (context) => new _ParameterScreen()),
-          );
-        });
-    _buttons.add(nextPage);
-    // Initialization of elements
-    if (_resultList.length == 0) {
-      _resultList.add(new Text(''));
-    }
-    if (_inputList.length == 0) {
-      _inputList.add(_buildTextField(0));
-    }
     // Top 'appBar' bar
     return new Scaffold(
-      appBar: new AppBar(
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.lightbulb_outline),
-          ),
-          new IconButton(
-            icon: new Icon(Icons.search),
-          ),
-          new IconButton(
-            icon: new Icon(Icons.card_travel),
-          ),
-        ],
-      ),
-      // Main Body
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            new Flexible(
-              child: new ListView(
-                children: _inputList + _resultList + _buttons,
-              ),
+        appBar: new AppBar(
+          actions: <Widget>[
+            new IconButton(
+              icon: new Icon(Icons.lightbulb_outline),
+            ),
+            new IconButton(
+              icon: new Icon(Icons.search),
+            ),
+            new IconButton(
+              icon: new Icon(Icons.card_travel),
             ),
           ],
         ),
-      ),
-    );
+        // Main Body
+        body: new Column(children: <Widget>[
+          new Flexible(
+              child: new ListView.custom(
+                controller: sc,
+            childrenDelegate: new SliverChildBuilderDelegate(
+              (BuildContext context, int index) {
+                if (index < _textFieldCount) {
+                  return _buildTextField(index);
+                } else {
+                  return _buildResultButtons(index);
+                }
+              },
+              childCount: _resultList.length + _textFieldCount,
+              addAutomaticKeepAlives: true,
+            ),
+          )
+
+              /*     new ListView.builder(
+            itemCount: _resultList.length + _textFieldCount,
+            itemBuilder: (BuildContext context, int index) {
+              if (index < _textFieldCount) {
+                return _buildTextField(index);
+              } else {
+                return _buildResultButtons(index);
+              }
+              /*
+              if (index < _inputList.length) {
+                return _inputList[index];
+              } else {
+                print('index - inputlen');
+                print(index - _inputList.length);
+                return _resultList[index - _inputList.length];
+              }
+              ;
+              */
+            },
+          )*/
+              ),
+        ]),
+        floatingActionButton: new FloatingActionButton(
+            child: new Icon(IconData(0xe409,
+                fontFamily: 'MaterialIcons', matchTextDirection: true)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(
+                    builder: (context) => new ParameterScreen()),
+              );
+            }));
   }
 }
 
-class _ParameterScreen extends StatelessWidget {
+class ParameterScreen extends StatefulWidget {
+  ParameterScreen({Key key, this.title}) : super(key: key);
+  final String title;
+
+  @override
+  _ParameterScreenState createState() => new _ParameterScreenState();
+}
+
+class _ParameterScreenState extends State<ParameterScreen> {
   GestureDetector start, end;
   Map<String, String> keys = {
     'Max Stay': 'maxstay',
@@ -191,7 +268,6 @@ class _ParameterScreen extends StatelessWidget {
     'Minimum Length': 'minlength',
     'Number of Passengers': 'passengers'
   };
-  Map<String, String> postData = new Map<String, String>();
   TextField _genField(String hint,
       {TextInputType kt = TextInputType.text, List<TextInputFormatter> tif}) {
     return new TextField(
@@ -201,21 +277,34 @@ class _ParameterScreen extends StatelessWidget {
         ),
         inputFormatters: tif,
         onChanged: (String newVal) {
-          postData[keys[hint]] = newVal;
+          if (tif == oneLineNumbers) {
+            postData[keys[hint]] = int.tryParse(newVal);
+          }
         });
   }
 
-  GestureDetector _buildClickableDateField(String text, BuildContext context) {
+  //TODO: Check if end > start, give warning
+  GestureDetector _buildClickableDateField(
+      String text, BuildContext context, int index) {
+    // index == 0 : start
+    // index == 1 : end
     return new GestureDetector(
       onTap: () {
-        DateTime time;
         showDatePicker(
-            context: context,
-            initialDate: new DateTime.now().add(new Duration(days: 1)),
-            firstDate: new DateTime.now(),
-            lastDate: DateTime.now().add(new Duration(days: 365))).then((dt) {
-          time = dt;
-          //setState(() {print('hi');});
+                context: context,
+                initialDate: new DateTime.now().add(new Duration(days: 1)),
+                firstDate: new DateTime.now(),
+                lastDate: DateTime.now().add(new Duration(days: 365)))
+            .then((DateTime dt) {
+          setState(() {
+            if (index == 0) {
+              postData['startTime'] = dt.millisecondsSinceEpoch;
+              start = _buildClickableDateField(dt.toString(), context, index);
+            } else if (index == 1) {
+              postData['endTime'] = dt.millisecondsSinceEpoch;
+              end = _buildClickableDateField(dt.toString(), context, index);
+            }
+          });
         });
       },
       child: new Text(text),
@@ -233,10 +322,14 @@ class _ParameterScreen extends StatelessWidget {
     BlacklistingTextInputFormatter.singleLineFormatter
   ];
 
+  bool firstRun = false;
   @override
   Widget build(BuildContext context) {
-    start =_buildClickableDateField('Tap to select start date', context);
-    end =_buildClickableDateField('Tap to select end date', context);
+    if (!firstRun) {
+      start = _buildClickableDateField('Tap to select start date', context, 0);
+      end = _buildClickableDateField('Tap to select end date', context, 1);
+      firstRun = !firstRun;
+    }
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('Param Screen'),
@@ -257,16 +350,6 @@ class _ParameterScreen extends StatelessWidget {
                 kt: TextInputType.number, tif: oneLineNumbers),
             start,
             end,
-            new FlatButton(
-                child: new Text('datepl'),
-                onPressed: () {
-                  showDatePicker(
-                      context: context,
-                      initialDate:
-                          new DateTime.now().add(new Duration(days: 1)),
-                      firstDate: new DateTime.now(),
-                      lastDate: DateTime.now().add(new Duration(days: 365)));
-                }),
             new FlatButton(
                 child: new Text('Back'),
                 onPressed: () {
