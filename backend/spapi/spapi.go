@@ -24,14 +24,14 @@ type SearchParams struct {
 
 // A Flight object (slice) is what is returned from this API abstraction
 type Flight struct {
-	ID         int64     `db:"id"`
-	Loc        string    `db:"loc"`
-	From       string    `db:"frm"`
-	DepartTime time.Time `db:"departtime"`
-	ArriveTime time.Time `db:"arrivetime"`
-	Price      float64   `db:"price"`
-	DeepLink   string    `db:"deeplink"`
-	Passengers int64     `db:"passengers"`
+	ID         int64     `db:"id"          json:"id"`
+	Loc        string    `db:"loc"         json:"loc"`
+	From       string    `db:"frm"         json:"from"`
+	DepartTime time.Time `db:"departtime"  json:"departtime"`
+	ArriveTime time.Time `db:"arrivetime"  json:"arrivetime"`
+	Price      float64   `db:"price"       json:"price"`
+	DeepLink   string    `db:"deeplink"    json:"deeplink"`
+	Passengers int64     `db:"passengers"  json:"passengers"`
 }
 
 func (fl *Flight) String() string {
