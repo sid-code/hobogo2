@@ -71,7 +71,6 @@ class _MyHomePageState extends State<MyHomePage>
   // List of text to be put into TextFields
   List<String> _selectedList = [];
   int _curInputIndex = 0;
-  ScrollController sc = new ScrollController();
   int _textFieldCount = 1;
 
   void _search(String value, int index) {
@@ -160,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage>
   }
 
   FlatButton _buildResultButtons(int index) {
-    index = index - _textFieldCount;
+    //index = index - _textFieldCount;
     FlatButton retVal = new FlatButton(
         child: new Text(_resultList[index]),
         onPressed: () {
@@ -171,10 +170,11 @@ class _MyHomePageState extends State<MyHomePage>
           print(_textFieldCount);
           print(index - _textFieldCount);
           print(_curInputIndex);
-          _selectedList[_curInputIndex] = _resultList[index];
-          _resultList = [];
-          _textFieldCount++;
-          setState((){sc.jumpTo(0.0);});
+          setState(() {
+            _selectedList[_curInputIndex] = _resultList[index];
+            _resultList = [];
+            _textFieldCount++;
+          });
           //save code
         });
 
@@ -201,42 +201,23 @@ class _MyHomePageState extends State<MyHomePage>
         // Main Body
         body: new Column(children: <Widget>[
           new Flexible(
-              child: new ListView.custom(
-                controller: sc,
-            childrenDelegate: new SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                if (index < _textFieldCount) {
+            child: new ListView.builder(
+                itemCount: _textFieldCount,
+                itemBuilder: (BuildContext context, int index) {
                   return _buildTextField(index);
-                } else {
-                  return _buildResultButtons(index);
-                }
-              },
-              childCount: _resultList.length + _textFieldCount,
-              addAutomaticKeepAlives: true,
-            ),
-          )
-
-              /*     new ListView.builder(
-            itemCount: _resultList.length + _textFieldCount,
+                }),
+          ),
+          new Expanded(
+              child: new ListView.builder(
+            itemCount: _resultList.length,
             itemBuilder: (BuildContext context, int index) {
-              if (index < _textFieldCount) {
-                return _buildTextField(index);
-              } else {
-                return _buildResultButtons(index);
-              }
-              /*
-              if (index < _inputList.length) {
-                return _inputList[index];
-              } else {
-                print('index - inputlen');
-                print(index - _inputList.length);
-                return _resultList[index - _inputList.length];
-              }
-              ;
-              */
+              //if (index < _textFieldCount) {
+              //  return _buildTextField(index);
+              //} else {
+              return _buildResultButtons(index);
+              //}
             },
-          )*/
-              ),
+          )),
         ]),
         floatingActionButton: new FloatingActionButton(
             child: new Icon(IconData(0xe409,
