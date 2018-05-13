@@ -78,7 +78,7 @@ func (s *Search) finish() {
 }
 
 func (s *Search) Search() {
-	s.planner.Search()
+	go s.planner.Search()
 	resc, errc, finc := s.planner.Channels()
 	for {
 		select {
