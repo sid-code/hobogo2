@@ -3,7 +3,6 @@ package planner
 import (
 	"flights/spapi"
 	"fmt"
-	_ "log"
 	"time"
 )
 
@@ -182,7 +181,6 @@ func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc 
 	for {
 		select {
 		case fl := <-searchResc:
-			fmt.Printf("DestList: %s  Got: %s  Price: %g\n", params.DestList, fl.Loc, fl.Price)
 			newNode := n.makeChild(fl)
 			if newNode == nil {
 				// lol idk why this happens
@@ -192,7 +190,7 @@ func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc 
 					n.tryAddChild(newNode, config.FlightDiff)
 					childc <- newNode
 				} else {
-					fmt.Printf("Pruned a fat price\n")
+					//fmt.Printf("Pruned a fat price\n")
 				}
 			}
 		case err := <-searchErrc:
