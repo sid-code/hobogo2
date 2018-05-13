@@ -188,7 +188,7 @@ func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc 
 				// lol idk why this happens
 				//log.Printf("did I just get an invalid flight? %s %s\n", n.remaining, fl)
 			} else {
-				if newNode.CumPrice <= config.MaxPrice-50 {
+				if newNode.CumPrice <= config.MaxPrice {
 					n.tryAddChild(newNode, config.FlightDiff)
 					childc <- newNode
 				} else {
