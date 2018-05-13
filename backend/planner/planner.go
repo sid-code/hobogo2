@@ -257,7 +257,6 @@ func (pl *Planner) Search() {
 						if child.fl.Loc == pl.config.HomeLoc {
 							pl.resc <- child
 						} else {
-							fmt.Printf("DEPTH: %d LIMIT: %d\n", child.depth, pl.config.MinLength)
 							if int64(child.depth+1) >= pl.config.MinLength && !child.penultimate {
 								child.remaining = append(child.remaining, pl.config.HomeLoc)
 								child.penultimate = true
