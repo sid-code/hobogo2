@@ -1,9 +1,9 @@
 package fconfig
 
 import (
+	"fmt"
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
-	"log"
 	"time"
 )
 
@@ -36,17 +36,17 @@ func (d *duration) UnmarshalText(text []byte) error {
 	return err
 }
 
-func ReadConfiguration(path string) Config {
+func ReadConfiguration(path string) (Config, error) {
 	cfg := Config{}
 	configText, err := ioutil.ReadFile(path)
 
 	if err != nil {
-		log.Fatalf("failed to read configuration file (%s): %v", path, err)
+		return cfg, fmt.Errorf("failed to read configuration file (%s): %v", path, err)
 	}
 
 	if _, err = toml.Decode(string(configText), &cfg); err != nil {
-		log.Fatalf("configuration error (%s): %v", path, err)
+		return cfg, fmt.Errorf("configuration error (%s): %v", path, err)
 	}
 
-	return cfg
+	return cfg, nil
 }
