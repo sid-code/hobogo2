@@ -96,32 +96,6 @@ class _MyHomePageState extends State<MyHomePage>
       });
     }
   }
-/*
-  List<Widget> _buildList(List<dynamic> list) {
-    //Build our widgets to display results
-    //ListTile to display more info later
-    List<Widget> retVal = [];
-    retVal.add(new Text(''));
-    for (int i = 0; i < list.length; i++) {
-      Text text = new Text(list[i]);
-      FlatButton but = new FlatButton(
-        child: text,
-        onPressed: () {
-          setState(() {
-            _inputList[_curInputIndex] =
-                _buildTextField(_curInputIndex, data: text.data);
-            _resultList = [];
-            _curInputIndex++;
-            _inputList.add(_buildTextField(_curInputIndex));
-            _currentAirportCodes.add(_nameToCode[text.data]);
-          });
-        },
-      );
-      retVal.add(but);
-    }
-    return retVal;
-  }
-*/
 
   TextField _buildTextField(int index) {
     // Hint Text
@@ -164,18 +138,11 @@ class _MyHomePageState extends State<MyHomePage>
         child: new Text(_resultList[index]),
         onPressed: () {
           _selectedList.length = _textFieldCount;
-          print('tap');
-          print(_selectedList.length);
-          print(index);
-          print(_textFieldCount);
-          print(index - _textFieldCount);
-          print(_curInputIndex);
           setState(() {
             _selectedList[_curInputIndex] = _resultList[index];
             _resultList = [];
             _textFieldCount++;
           });
-          //save code
         });
 
     return retVal;
@@ -211,11 +178,7 @@ class _MyHomePageState extends State<MyHomePage>
               child: new ListView.builder(
             itemCount: _resultList.length,
             itemBuilder: (BuildContext context, int index) {
-              //if (index < _textFieldCount) {
-              //  return _buildTextField(index);
-              //} else {
               return _buildResultButtons(index);
-              //}
             },
           )),
         ]),
