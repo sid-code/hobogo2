@@ -7,11 +7,13 @@ import 'package:csv/csv.dart';
 import 'fuzzy.dart';
 import 'levenshtein.dart';
 import 'submit.dart';
+import 'results.dart';
+import 'postdata.dart';
 
 List<List<dynamic>> _airportList;
-Map<String, dynamic> postData = new Map<String, dynamic>();
 Map<String, String> _nameToCode = new Map<String, String>();
 List<String> _currentAirportCodes = [];
+PostData postData = new PostData();
 Fuzzy _fuzz;
 String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
 
@@ -186,9 +188,9 @@ class _MyHomePageState extends State<MyHomePage>
             child: new Icon(IconData(0xe409,
                 fontFamily: 'MaterialIcons', matchTextDirection: true)),
             onPressed: () {
-              for(int i = 0;i < _selectedList.length; i++){
+              for (int i = 0; i < _selectedList.length; i++) {
                 _currentAirportCodes.add(_nameToCode[_selectedList[i]]);
-                if(_currentAirportCodes[i] == null){
+                if (_currentAirportCodes[i] == null) {
                   _currentAirportCodes.removeAt(i);
                 }
               }
@@ -229,7 +231,26 @@ class _ParameterScreenState extends State<ParameterScreen> {
         inputFormatters: tif,
         onChanged: (String newVal) {
           if (tif == oneLineNumbers) {
-            postData[keys[hint]] = int.tryParse(newVal);
+            int val = int.tryParse(newVal);
+            switch(hint) {
+              case 'Max Stay':
+                postData.maxStay = val;
+                break;
+              case 'Min Stay':
+                postData.minStay = val;
+                break;
+              case 'Max Price':
+                postData.maxPrice = val;
+                break;
+              case 'Minimum Length':
+                postData.minLength = val;
+                break;
+              case 'Number of Passengers':
+                postData.passengers = val;
+                break;
+              default:
+                print('default');
+            }
           }
         });
   }
@@ -249,10 +270,10 @@ class _ParameterScreenState extends State<ParameterScreen> {
             .then((DateTime dt) {
           setState(() {
             if (index == 0) {
-              postData['starttime'] = dt.millisecondsSinceEpoch;
+              postData.startTime = dt.millisecondsSinceEpoch;
               start = _buildClickableDateField(dt.toString(), context, index);
             } else if (index == 1) {
-              postData['endtime'] = dt.millisecondsSinceEpoch;
+              postData.endTime = dt.millisecondsSinceEpoch;
               end = _buildClickableDateField(dt.toString(), context, index);
             }
           });
@@ -264,10 +285,20 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   void _sendPost() {
     Submit sub = new Submit();
-    postData['homeloc'] = _currentAirportCodes[0];
-    postData['destlist'] = _currentAirportCodes.getRange(1, _currentAirportCodes.length);
-    print(JSON.encode(postData));
-    print(sub.post(JSON.encode(postData), _url));
+    postData.homeLoc = _currentAirportCodes[0];
+    print(_currentAirportCodes);
+    postData.destList =
+        _currentAirportCodes.getRange(1, _currentAirportCodes.length).toList();
+
+    print(postData.googleCantJSONThingsSoIWillDoIt());
+    //var response = sub.post(JSON.encode(postData), _url);
+    //TODO: use futures or something here
+    while(!sub.done){};
+    if(sub.statusCode == 200){
+      ResultScreen.token = sub.body;
+    } else {
+      ResultScreen.token = 'hi';
+    }
   }
 
   List<TextInputFormatter> oneLineNumbers = [
@@ -284,42 +315,50 @@ class _ParameterScreenState extends State<ParameterScreen> {
       firstRun = !firstRun;
     }
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Param Screen'),
-      ),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            _genField('Max Stay',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Min Stay',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Max Price',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Minimum Length',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Number of Passengers',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            start,
-            end,
-            new FlatButton(
-                child: new Text('Back'),
-                onPressed: () {
-                  Navigator.pop(
-                    context,
-                    true,
-                  );
-                }),
-            new FlatButton(
-                child: new Text('Submit'),
-                onPressed: () {
-                  _sendPost();
-                  print('Submit');
-                }),
-          ],
+        appBar: new AppBar(
+          title: new Text('Param Screen'),
         ),
-      ),
-    );
+        body: new Center(
+          child: new Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              _genField('Max Stay',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Min Stay',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Max Price',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Minimum Length',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Number of Passengers',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              start,
+              end,
+              new FlatButton(
+                  child: new Text('Back'),
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      true,
+                    );
+                  }),
+              new FlatButton(
+                  child: new Text('Submit'),
+                  onPressed: () {
+                    _sendPost();
+                    print('Submit');
+                  }),
+            ],
+          ),
+        ),
+        floatingActionButton: new FloatingActionButton(
+            child: new Icon(IconData(0xe409,
+                fontFamily: 'MaterialIcons', matchTextDirection: true)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(builder: (context) => new ResultScreen()),
+              );
+            }));
   }
 }
