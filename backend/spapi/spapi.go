@@ -38,19 +38,6 @@ func (fl *Flight) String() string {
 	return fmt.Sprintf("%s -> %s [%g]", fl.From, fl.Loc, fl.Price)
 }
 
-func (fl *Flight) FieldTable() map[string]interface{} {
-	return map[string]interface{}{
-		"id":         fl.ID,
-		"loc":        fl.Loc,
-		"frm":        fl.From,
-		"departTime": fl.DepartTime,
-		"arriveTime": fl.ArriveTime,
-		"price":      fl.Price,
-		"deepLink":   fl.DeepLink,
-		"passengers": fl.Passengers,
-	}
-}
-
 const endpointBaseURL = "https://api.skypicker.com"
 const flightsPath = "/flights"
 
