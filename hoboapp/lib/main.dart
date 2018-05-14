@@ -81,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage>
         //For now just search name
         String curName = _airportList[i][2];
         String curCode = _airportList[i][10].toString();
-        int index = _fuzz.bitapSearch(curName, value, 2);
+        int index = _fuzz.bitapSearch(curCode, value, 2);
         if (index == 0) {
           results.add(curName);
           codes.add(curCode);
