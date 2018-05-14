@@ -291,7 +291,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
         _currentAirportCodes.getRange(1, _currentAirportCodes.length).toList();
 
     print(postData.googleCantJSONThingsSoIWillDoIt());
-    //var response = sub.post(JSON.encode(postData), _url);
+    sub.post(JSON.encode(postData), _url);
     //TODO: use futures or something here
     while(!sub.done){};
     if(sub.statusCode == 200){
