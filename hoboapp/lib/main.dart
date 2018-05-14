@@ -186,6 +186,13 @@ class _MyHomePageState extends State<MyHomePage>
             child: new Icon(IconData(0xe409,
                 fontFamily: 'MaterialIcons', matchTextDirection: true)),
             onPressed: () {
+              for(int i = 0;i < _selectedList.length; i++){
+                _currentAirportCodes.add(_nameToCode[_selectedList[i]]);
+                if(_currentAirportCodes[i] == null){
+                  _currentAirportCodes.removeAt(i);
+                }
+              }
+              print(_currentAirportCodes);
               Navigator.push(
                 context,
                 new MaterialPageRoute(
