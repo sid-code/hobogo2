@@ -267,7 +267,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
     postData['homeloc'] = _currentAirportCodes[0];
     postData['destlist'] = _currentAirportCodes.getRange(1, _currentAirportCodes.length);
     print(JSON.encode(postData));
-    sub.post(JSON.encode(postData), _url);
+    print(sub.post(JSON.encode(postData), _url));
   }
 
   List<TextInputFormatter> oneLineNumbers = [
