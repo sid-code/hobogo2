@@ -249,10 +249,10 @@ class _ParameterScreenState extends State<ParameterScreen> {
             .then((DateTime dt) {
           setState(() {
             if (index == 0) {
-              postData['startTime'] = dt.millisecondsSinceEpoch;
+              postData['starttime'] = dt.millisecondsSinceEpoch;
               start = _buildClickableDateField(dt.toString(), context, index);
             } else if (index == 1) {
-              postData['endTime'] = dt.millisecondsSinceEpoch;
+              postData['endtime'] = dt.millisecondsSinceEpoch;
               end = _buildClickableDateField(dt.toString(), context, index);
             }
           });
@@ -264,7 +264,9 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   void _sendPost() {
     Submit sub = new Submit();
-    print(postData);
+    postData['homeloc'] = _currentAirportCodes[0];
+    postData['destlist'] = _currentAirportCodes.getRange(1, _currentAirportCodes.length);
+    print(JSON.encode(postData));
     sub.post(JSON.encode(postData), _url);
   }
 
