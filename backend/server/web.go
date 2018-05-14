@@ -98,7 +98,7 @@ func searchRequestToPlannerConfig(sr searchRequest, gconf fconfig.Config) (plann
 	if sr.MinLength <= 0 {
 		return result, errors.New("please provide a positive minimum length")
 	}
-	if sr.MinLength > int64(len(sr.DestList)) {
+	if sr.MinLength > int64(len(sr.DestList)+1) {
 		return result, errors.New("you can't have a trip longer than your destination list")
 	}
 	result.MinLength = sr.MinLength
