@@ -45,6 +45,7 @@ func newSearch(config planner.Config, cl *spapi.Client) (*Search, error) {
 
 func (s *Search) addResult(res *planner.Node) {
 	fls := res.BuildChain()
+	fls = fls[1:] // we don't need the first dummy node
 	s.backlog = append(s.backlog, fls)
 	for _, c := range s.subscribers {
 		sendResult(c, fls)
