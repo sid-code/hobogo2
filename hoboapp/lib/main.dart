@@ -7,11 +7,13 @@ import 'package:csv/csv.dart';
 import 'fuzzy.dart';
 import 'levenshtein.dart';
 import 'submit.dart';
+import 'results.dart';
+import 'postdata.dart';
 
 List<List<dynamic>> _airportList;
-Map<String, dynamic> postData = new Map<String, dynamic>();
 Map<String, String> _nameToCode = new Map<String, String>();
 List<String> _currentAirportCodes = [];
+PostData postData = new PostData();
 Fuzzy _fuzz;
 String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
 
@@ -81,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage>
         //For now just search name
         String curName = _airportList[i][2];
         String curCode = _airportList[i][10].toString();
-        int index = _fuzz.bitapSearch(curName, value, 2);
+        int index = _fuzz.bitapSearch(curCode, value, 2);
         if (index == 0) {
           results.add(curName);
           codes.add(curCode);
@@ -96,32 +98,6 @@ class _MyHomePageState extends State<MyHomePage>
       });
     }
   }
-/*
-  List<Widget> _buildList(List<dynamic> list) {
-    //Build our widgets to display results
-    //ListTile to display more info later
-    List<Widget> retVal = [];
-    retVal.add(new Text(''));
-    for (int i = 0; i < list.length; i++) {
-      Text text = new Text(list[i]);
-      FlatButton but = new FlatButton(
-        child: text,
-        onPressed: () {
-          setState(() {
-            _inputList[_curInputIndex] =
-                _buildTextField(_curInputIndex, data: text.data);
-            _resultList = [];
-            _curInputIndex++;
-            _inputList.add(_buildTextField(_curInputIndex));
-            _currentAirportCodes.add(_nameToCode[text.data]);
-          });
-        },
-      );
-      retVal.add(but);
-    }
-    return retVal;
-  }
-*/
 
   TextField _buildTextField(int index) {
     // Hint Text
@@ -164,18 +140,11 @@ class _MyHomePageState extends State<MyHomePage>
         child: new Text(_resultList[index]),
         onPressed: () {
           _selectedList.length = _textFieldCount;
-          print('tap');
-          print(_selectedList.length);
-          print(index);
-          print(_textFieldCount);
-          print(index - _textFieldCount);
-          print(_curInputIndex);
           setState(() {
             _selectedList[_curInputIndex] = _resultList[index];
             _resultList = [];
             _textFieldCount++;
           });
-          //save code
         });
 
     return retVal;
@@ -211,11 +180,7 @@ class _MyHomePageState extends State<MyHomePage>
               child: new ListView.builder(
             itemCount: _resultList.length,
             itemBuilder: (BuildContext context, int index) {
-              //if (index < _textFieldCount) {
-              //  return _buildTextField(index);
-              //} else {
               return _buildResultButtons(index);
-              //}
             },
           )),
         ]),
@@ -223,6 +188,13 @@ class _MyHomePageState extends State<MyHomePage>
             child: new Icon(IconData(0xe409,
                 fontFamily: 'MaterialIcons', matchTextDirection: true)),
             onPressed: () {
+              for (int i = 0; i < _selectedList.length; i++) {
+                _currentAirportCodes.add(_nameToCode[_selectedList[i]]);
+                if (_currentAirportCodes[i] == null) {
+                  _currentAirportCodes.removeAt(i);
+                }
+              }
+              print(_currentAirportCodes);
               Navigator.push(
                 context,
                 new MaterialPageRoute(
@@ -259,7 +231,26 @@ class _ParameterScreenState extends State<ParameterScreen> {
         inputFormatters: tif,
         onChanged: (String newVal) {
           if (tif == oneLineNumbers) {
-            postData[keys[hint]] = int.tryParse(newVal);
+            int val = int.tryParse(newVal);
+            switch(hint) {
+              case 'Max Stay':
+                postData.maxStay = val;
+                break;
+              case 'Min Stay':
+                postData.minStay = val;
+                break;
+              case 'Max Price':
+                postData.maxPrice = val;
+                break;
+              case 'Minimum Length':
+                postData.minLength = val;
+                break;
+              case 'Number of Passengers':
+                postData.passengers = val;
+                break;
+              default:
+                print('default');
+            }
           }
         });
   }
@@ -279,10 +270,10 @@ class _ParameterScreenState extends State<ParameterScreen> {
             .then((DateTime dt) {
           setState(() {
             if (index == 0) {
-              postData['startTime'] = dt.millisecondsSinceEpoch;
+              postData.startTime = dt.millisecondsSinceEpoch;
               start = _buildClickableDateField(dt.toString(), context, index);
             } else if (index == 1) {
-              postData['endTime'] = dt.millisecondsSinceEpoch;
+              postData.endTime = dt.millisecondsSinceEpoch;
               end = _buildClickableDateField(dt.toString(), context, index);
             }
           });
@@ -294,8 +285,20 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   void _sendPost() {
     Submit sub = new Submit();
-    print(postData);
-    sub.post(JSON.encode(postData), _url);
+    postData.homeLoc = _currentAirportCodes[0];
+    print(_currentAirportCodes);
+    postData.destList =
+        _currentAirportCodes.getRange(1, _currentAirportCodes.length).toList();
+
+    print(postData.googleCantJSONThingsSoIWillDoIt());
+    sub.post(postData.googleCantJSONThingsSoIWillDoIt(), _url);
+    //TODO: use futures or something here
+    while(!sub.done){};
+    if(sub.statusCode == 200){
+      ResultScreen.token = sub.body;
+    } else {
+      ResultScreen.token = 'hi';
+    }
   }
 
   List<TextInputFormatter> oneLineNumbers = [
@@ -312,42 +315,50 @@ class _ParameterScreenState extends State<ParameterScreen> {
       firstRun = !firstRun;
     }
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text('Param Screen'),
-      ),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            _genField('Max Stay',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Min Stay',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Max Price',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Minimum Length',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            _genField('Number of Passengers',
-                kt: TextInputType.number, tif: oneLineNumbers),
-            start,
-            end,
-            new FlatButton(
-                child: new Text('Back'),
-                onPressed: () {
-                  Navigator.pop(
-                    context,
-                    true,
-                  );
-                }),
-            new FlatButton(
-                child: new Text('Submit'),
-                onPressed: () {
-                  _sendPost();
-                  print('Submit');
-                }),
-          ],
+        appBar: new AppBar(
+          title: new Text('Param Screen'),
         ),
-      ),
-    );
+        body: new Center(
+          child: new Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              _genField('Max Stay',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Min Stay',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Max Price',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Minimum Length',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              _genField('Number of Passengers',
+                  kt: TextInputType.number, tif: oneLineNumbers),
+              start,
+              end,
+              new FlatButton(
+                  child: new Text('Back'),
+                  onPressed: () {
+                    Navigator.pop(
+                      context,
+                      true,
+                    );
+                  }),
+              new FlatButton(
+                  child: new Text('Submit'),
+                  onPressed: () {
+                    _sendPost();
+                    print('Submit');
+                  }),
+            ],
+          ),
+        ),
+        floatingActionButton: new FloatingActionButton(
+            child: new Icon(IconData(0xe409,
+                fontFamily: 'MaterialIcons', matchTextDirection: true)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                new MaterialPageRoute(builder: (context) => new ResultScreen()),
+              );
+            }));
   }
 }
