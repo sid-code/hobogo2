@@ -102,6 +102,15 @@ class _ResultScreenState extends State<ResultScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             new Text(ResultScreen.token),
+            new StreamBuilder(
+              stream: ws.stream,
+              builder: (context, snapshot) {
+                return new Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24.0),
+                  child: new Text(snapshot.hasData ? '${snapshot.data}' : ''),
+                );
+              },
+            )
           ],
         ),
       ),
