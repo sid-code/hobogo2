@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -19,6 +20,7 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   IOWebSocketChannel ws;
   bool firstRun = true;
+
   Card _genResult(Flight input) {
     Flight inFlight = input;
     return new Card(
@@ -49,39 +51,69 @@ class _ResultScreenState extends State<ResultScreen> {
           new Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              new Expanded(
-                child: new Text(inFlight.From, textAlign: TextAlign.right),
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
+                child:
+                new Text(
+                    new DateFormat.yMd().format(inFlight.DepartTime) + '\n' +
+                    new DateFormat.jm().format(inFlight.DepartTime),
+                    textAlign: TextAlign.left),
               ),
-              new Expanded(
-                child: new Text(inFlight.DepartTime.toString(),
-                    textAlign: TextAlign.right),
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
+                child: new Text(
+                    inFlight.From,
+                    textAlign: TextAlign.center
+                ),
               ),
-              new Expanded(
+              new Icon(
+                IconData(0xe5c8, fontFamily: 'MaterialIcons')
+              ),
+
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
                 child: new Text(
                   inFlight.Loc,
                   textAlign: TextAlign.center,
                 ),
               ),
-              new Expanded(
-                  child: new Text('Travel Time: ' +
-                      inFlight.TravelTime.inHours.toString() +
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
+                child:
+                new Text(
+                    new DateFormat.yMd().format(inFlight.ArriveTime) + '\n' +
+                        new DateFormat.jm().format(inFlight.ArriveTime),
+                    textAlign: TextAlign.right),
+              ),
+              new Icon(
+                IconData(0xe192, fontFamily: 'MaterialIcons'),
+              ),
+              new Align(
+                alignment: Alignment.centerRight,
+                  child: new Text(inFlight.TravelTime.inHours.toString() +
                       'h ' +
                       (inFlight.TravelTime.inMinutes -
                               60 * inFlight.TravelTime.inHours)
                           .toString() +
-                      'm'))
-            ],
-          ),
-          new Row(
-            children: <Widget>[
-              new Expanded(
-                child: Text('Passengers: ' + inFlight.Passengers.toString(),
-                    textAlign: TextAlign.right),
-              ),
+                      'm',
+                    textAlign: TextAlign.left,
+                  )
+              )
             ],
           ),
         ]));
   }
+
+  static DateTime timeD = new DateTime.utc(2018,5,20,2,30);
+  static DateTime timeA = new DateTime.utc(2018,5,20,10,30);
+
+  Flight ftest = new Flight(
+      1, 'LGW', 'LAX', timeD,
+      timeA, 800.0, 'testLink', 3);
 
   @override
   Widget build(BuildContext context) {
@@ -101,8 +133,11 @@ class _ResultScreenState extends State<ResultScreen> {
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            new Expanded(
+            child: _genResult(ftest),
+            ),
             new Text(ResultScreen.token),
-            new StreamBuilder(
+            /*new StreamBuilder(
               stream: ws.stream,
               builder: (context, snapshot) {
                 return new Padding(
@@ -110,7 +145,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   child: new Text(snapshot.hasData ? '${snapshot.data}' : ''),
                 );
               },
-            )
+            )*/
           ],
         ),
       ),
