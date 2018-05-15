@@ -8,7 +8,11 @@ import (
 
 func main() {
 	configPath := "./conf.toml"
-	conf := fconfig.ReadConfiguration(configPath)
+	conf, err := fconfig.ReadConfiguration(configPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	cache, err := manager.MakeCache(conf)
 	if err != nil {
 		log.Fatal(err)
