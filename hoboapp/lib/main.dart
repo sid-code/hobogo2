@@ -281,7 +281,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
           });
         });
       },
-      child: new Text(text),
+      child: new Text(text,
+      textAlign: TextAlign.center,
+        style: new TextStyle(
+          color: Colors.black,
+        )
+      ),
     );
   }
 
@@ -327,18 +332,38 @@ class _ParameterScreenState extends State<ParameterScreen> {
           child: new Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              _genField('Max Stay',
-                  kt: TextInputType.number, tif: oneLineNumbers),
-              _genField('Min Stay',
-                  kt: TextInputType.number, tif: oneLineNumbers),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Expanded(
+                    child: _genField('Max Stay',
+                      kt: TextInputType.number, tif: oneLineNumbers),
+                  ),
+                  new Flexible(
+                      child: _genField('Min Stay',
+                      kt: TextInputType.number, tif: oneLineNumbers)
+                  ),
+                  new Flexible(
+                    child:_genField('Minimum Length',
+                        kt: TextInputType.number, tif: oneLineNumbers),
+                  ),
+                ],
+              ),
               _genField('Max Price',
-                  kt: TextInputType.number, tif: oneLineNumbers),
-              _genField('Minimum Length',
                   kt: TextInputType.number, tif: oneLineNumbers),
               _genField('Number of Passengers',
                   kt: TextInputType.number, tif: oneLineNumbers),
-              start,
-              end,
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  new FlatButton(
+                      child: start
+                  ),
+                  new FlatButton(
+                      child: end
+                  ),
+                ],
+              ),
               new FlatButton(
                   child: new Text('Back'),
                   onPressed: () {
