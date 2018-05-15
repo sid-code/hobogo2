@@ -126,14 +126,14 @@ func (s *FlightSearchServer) search(w http.ResponseWriter, r *http.Request) {
 
 		err := dec.Decode(&sr)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, "json decode error: %v", err)
 			return
 		}
 
 		pconf, err = searchRequestToPlannerConfig(sr, s.conf)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, "invalid input: %v", err)
 			return
 		}
