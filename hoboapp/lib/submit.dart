@@ -1,18 +1,24 @@
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
 class Submit {
-  String body;
+  String responseBody;
   int statusCode;
-  //wow hacky idk how to use futures and NO DOCS ON THIS PACKAGE
-  bool done = false;
-  void post(String json, String url) {
-    done = false;
+  Completer<Response> completer = new Completer<Response>();
+  Future<Response> post(String json, String url) async {
     http.post(url, body: json).then((response) {
-      print("Response status: ${response.statusCode}");
-      print("Response status: ${response.body}");
-      body = response.body;
-      statusCode = response.statusCode;
-      done = true;
+      Response r = new Response(response.statusCode, response.body);
+      completer.complete(r);
     });
+    return completer.future;
+  }
+}
+
+class Response {
+  String responseBody;
+  int statusCode;
+  Response(int code, String body) {
+    responseBody = body;
+    statusCode = code;
   }
 }

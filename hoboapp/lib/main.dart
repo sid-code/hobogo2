@@ -15,7 +15,8 @@ Map<String, String> _nameToCode = new Map<String, String>();
 List<String> _currentAirportCodes = [];
 PostData postData = new PostData();
 Fuzzy _fuzz;
-String _url = 'http://requestbin.fullcontact.com/1bnkxwj1';
+String _url = 'http://142.4.213.30:8080/search';
+//String _url = 'http://requestbin.fullcontact.com/1401f421';
 
 void main() async {
   _init();
@@ -188,6 +189,7 @@ class _MyHomePageState extends State<MyHomePage>
             child: new Icon(IconData(0xe409,
                 fontFamily: 'MaterialIcons', matchTextDirection: true)),
             onPressed: () {
+              _currentAirportCodes = [];
               for (int i = 0; i < _selectedList.length; i++) {
                 _currentAirportCodes.add(_nameToCode[_selectedList[i]]);
                 if (_currentAirportCodes[i] == null) {
@@ -232,7 +234,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
         onChanged: (String newVal) {
           if (tif == oneLineNumbers) {
             int val = int.tryParse(newVal);
-            switch(hint) {
+            switch (hint) {
               case 'Max Stay':
                 postData.maxStay = val;
                 break;
@@ -279,7 +281,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
           });
         });
       },
-      child: new Text(text),
+      child: new Text(text,
+      textAlign: TextAlign.center,
+        style: new TextStyle(
+          color: Colors.black,
+        )
+      ),
     );
   }
 
@@ -291,14 +298,17 @@ class _ParameterScreenState extends State<ParameterScreen> {
         _currentAirportCodes.getRange(1, _currentAirportCodes.length).toList();
 
     print(postData.googleCantJSONThingsSoIWillDoIt());
-    sub.post(postData.googleCantJSONThingsSoIWillDoIt(), _url);
-    //TODO: use futures or something here
-    while(!sub.done){};
-    if(sub.statusCode == 200){
-      ResultScreen.token = sub.body;
-    } else {
-      ResultScreen.token = 'hi';
-    }
+    sub.post(postData.googleCantJSONThingsSoIWillDoIt(), _url).then((Response response) {
+      print(response.statusCode);
+      print(response.responseBody);
+      if (response.statusCode == 200) {
+        ResultScreen.token = response.responseBody;
+      } else {
+        //SHOW ERROR
+        ResultScreen.token = 'hi';
+      }
+    });
+    //HttpClientResponse = await sub.post2(googleCantJSONThingsSoIWillDoIt(), _url, '8080', '/search');
   }
 
   List<TextInputFormatter> oneLineNumbers = [
@@ -322,18 +332,38 @@ class _ParameterScreenState extends State<ParameterScreen> {
           child: new Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              _genField('Max Stay',
-                  kt: TextInputType.number, tif: oneLineNumbers),
-              _genField('Min Stay',
-                  kt: TextInputType.number, tif: oneLineNumbers),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Expanded(
+                    child: _genField('Max Stay',
+                      kt: TextInputType.number, tif: oneLineNumbers),
+                  ),
+                  new Flexible(
+                      child: _genField('Min Stay',
+                      kt: TextInputType.number, tif: oneLineNumbers)
+                  ),
+                  new Flexible(
+                    child:_genField('Minimum Length',
+                        kt: TextInputType.number, tif: oneLineNumbers),
+                  ),
+                ],
+              ),
               _genField('Max Price',
-                  kt: TextInputType.number, tif: oneLineNumbers),
-              _genField('Minimum Length',
                   kt: TextInputType.number, tif: oneLineNumbers),
               _genField('Number of Passengers',
                   kt: TextInputType.number, tif: oneLineNumbers),
-              start,
-              end,
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  new FlatButton(
+                      child: start
+                  ),
+                  new FlatButton(
+                      child: end
+                  ),
+                ],
+              ),
               new FlatButton(
                   child: new Text('Back'),
                   onPressed: () {
