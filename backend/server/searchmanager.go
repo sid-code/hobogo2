@@ -72,8 +72,7 @@ func (s *Search) finish() {
 	for _, conn := range s.subscribers {
 		err := conn.WriteMessage(websocket.CloseMessage, []byte{})
 		if err != nil {
-			// TODO: better error handling
-			log.Fatal(err)
+			log.Printf("failed to close websocket: %v", err)
 		}
 	}
 	delete(s.mgr.searches, s.ID)
@@ -82,13 +81,14 @@ func (s *Search) finish() {
 func (s *Search) Search() {
 	go s.planner.Search()
 	resc, errc, finc := s.planner.Channels()
+
 	for {
 		select {
 		case res := <-resc:
 			s.addResult(res)
 		case err := <-errc:
 			s.finish()
-			log.Fatal(err) // TODO: better error handling
+			log.Printf("error during flight search %v\n", err) // TODO: better error handling
 		case <-finc:
 			fmt.Printf("FINISHED\n")
 			s.finish()
