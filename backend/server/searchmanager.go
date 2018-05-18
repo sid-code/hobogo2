@@ -55,8 +55,9 @@ func (s *Search) addResult(res *planner.Node) {
 func sendResult(conn *websocket.Conn, result []*spapi.Flight) {
 	buf, err := json.Marshal(result)
 	if err != nil {
-		// TODO: better error handling
-		log.Fatalf("failed to jsonify flight data: %v", err)
+		log.Printf("failed to jsonify flight data: %v", err)
+		log.Print(result)
+		return
 	}
 	conn.WriteMessage(websocket.TextMessage, buf)
 }
