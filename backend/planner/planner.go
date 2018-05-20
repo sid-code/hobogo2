@@ -237,8 +237,6 @@ func (pl *Planner) Search() {
 	var frontier []*Node
 	frontier = append(frontier, pl.start)
 	for len(frontier) > 0 {
-		head := frontier[0]
-		fmt.Printf("State of the art: %s  price=%g\n", head.BuildChain(), head.CumPrice)
 		var heads []*Node
 		nsearch := pl.config.ConcurrentSearch
 		if nsearch >= len(frontier) {
