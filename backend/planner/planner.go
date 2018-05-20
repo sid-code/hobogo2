@@ -3,6 +3,7 @@ package planner
 import (
 	"flights/spapi"
 	"fmt"
+	"math"
 	"time"
 )
 
@@ -203,21 +204,32 @@ func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc 
 	}
 }
 
-func addSorted(frontier []*Node, child *Node) []*Node {
-	var i int
+func addSorted(frontier []*Node, child *Node, fBinSize time.Duration) []*Node {
 	var n *Node
+	var newFrontier []*Node
+	var replaced bool
 
-	for i, n = range frontier {
-		if n.depth < child.depth || n.CumPrice > child.CumPrice {
-			break
+	newFrontier = nil
+	replaced = false
+	for _, n = range frontier {
+		if !replaced && (n.depth < child.depth || n.CumPrice > child.CumPrice) {
+			newFrontier = append(newFrontier, child)
+			newFrontier = append(newFrontier, n)
+			replaced = true
+		} else if n.depth == child.depth && n.fl.From == child.fl.From && n.fl.Loc == child.fl.Loc &&
+			math.Abs(float64(n.fl.DepartTime.Sub(child.fl.DepartTime))) <
+				float64(fBinSize) &&
+			n.fl.Price >= child.fl.Price {
+		} else {
+			newFrontier = append(newFrontier, n)
 		}
 	}
 
-	frontier = append(frontier, nil)
-	copy(frontier[i+1:], frontier[i:])
-	frontier[i] = child
+	if !replaced {
+		newFrontier = append(newFrontier, child)
+	}
 
-	return frontier
+	return newFrontier
 }
 
 // Goroutine
