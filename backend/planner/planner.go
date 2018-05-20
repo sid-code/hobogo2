@@ -245,7 +245,7 @@ func (pl *Planner) Search() {
 			frontier = nil
 		} else {
 			heads = frontier[:nsearch]
-			frontier = frontier[nsearch+1:]
+			frontier = frontier[nsearch:]
 		}
 
 		finished := make(chan int)
