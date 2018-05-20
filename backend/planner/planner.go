@@ -289,7 +289,7 @@ func (pl *Planner) Search() {
 			case child := <-addToFrontier:
 				frontier = addSorted(frontier, child, pl.config.FlightDiff)
 			case <-finished:
-				fincount += 1
+				fincount++
 			}
 
 			if fincount >= nsearch {
