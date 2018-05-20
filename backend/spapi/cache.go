@@ -1,9 +1,11 @@
 package spapi
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // postgres driver
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -55,8 +57,33 @@ WHERE loc = :loc
 
 const insertSQL = `
 INSERT INTO flcache(id, loc, frm, departTime, arriveTime, price, deepLink, passengers)
-VALUES ( :id, :loc, :frm, :departTime, :arriveTime, :price, :deepLink, :passengers )
-`
+VALUES` // NOTE: not a named query because sqlx doesn't support variadic named exec
+// Thanks, Go.
+func makeValuesString(index int64, numFields int64) string {
+	i := index * numFields
+	fmtArgs := make([]interface{}, 0, numFields)
+	var fmtStringBuf bytes.Buffer
+	var j int64
+
+	first := true
+
+	fmtStringBuf.WriteString("(")
+	for j = 0; j < numFields; j++ {
+		i++
+		fmtArgs = append(fmtArgs, i)
+		if first {
+			first = false
+			fmtStringBuf.WriteString("$%d")
+		} else {
+			fmtStringBuf.WriteString(",$%d")
+		}
+	}
+	fmtStringBuf.WriteString(")")
+
+	return fmt.Sprintf(fmtStringBuf.String(), fmtArgs...)
+}
+
+const numFlightFields = 8
 
 const deleteSQL = `
 DELETE FROM flcache WHERE id=:id
@@ -156,12 +183,30 @@ func (c *Cache) searchFlights(cl *http.Client, params SearchParams, resc chan *F
 
 	fmt.Printf("But got %d from search\n", len(res))
 
-	for _, fl := range res {
-		resc <- fl
-		err := c.Insert(fl)
+	if len(res) > 0 {
+
+		// https://stackoverflow.com/questions/12486436/golang-how-do-i-batch-sql-statements-with-package-database-sql/25192138#25192138
+		valueStrings := make([]string, 0, len(res))
+		valueArgs := make([]interface{}, 0, len(res)*numFlightFields)
+
+		var i int64
+		for _, fl := range res {
+			resc <- fl
+			valueStrings = append(valueStrings, makeValuesString(i, numFlightFields))
+			valueArgs = fl.addToAccumulator(valueArgs)
+			if err != nil {
+				errc <- err
+				break
+			}
+			i++
+		}
+
+		stmt := fmt.Sprintf("%s %s", insertSQL, strings.Join(valueStrings, ","))
+		_, err = c.db.Exec(stmt, valueArgs...)
 		if err != nil {
-			errc <- err
-			break
+			log.Printf("Failed statement: %s\n", stmt)
+			errc <- fmt.Errorf("failed to bulk insert flights: %v", err)
+			return
 		}
 	}
 

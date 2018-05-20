@@ -51,6 +51,19 @@ func (fl *Flight) FieldTable() map[string]interface{} {
 	}
 }
 
+// This is all because sqlx doesn't support variadic named execution
+func (fl *Flight) addToAccumulator(acc []interface{}) []interface{} {
+	acc = append(acc, fl.ID)
+	acc = append(acc, fl.Loc)
+	acc = append(acc, fl.From)
+	acc = append(acc, fl.DepartTime)
+	acc = append(acc, fl.ArriveTime)
+	acc = append(acc, fl.Price)
+	acc = append(acc, fl.DeepLink)
+	acc = append(acc, fl.Passengers)
+	return acc
+}
+
 const endpointBaseURL = "https://api.skypicker.com"
 const flightsPath = "/flights"
 
