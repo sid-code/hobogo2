@@ -287,7 +287,7 @@ func (pl *Planner) Search() {
 		for {
 			select {
 			case child := <-addToFrontier:
-				frontier = addSorted(frontier, child)
+				frontier = addSorted(frontier, child, pl.config.FlightDiff)
 			case <-finished:
 				fincount += 1
 			}
