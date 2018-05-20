@@ -30,5 +30,5 @@ func MakeCache(config fconfig.Config) (*spapi.Cache, error) {
 		return nil, err
 	}
 
-	return spapi.NewCache(ctx, db, config.FBinSize)
+	return spapi.NewCache(db, config.FBinSize)
 }
