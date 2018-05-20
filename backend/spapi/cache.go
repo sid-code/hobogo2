@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq" // postgres driver
-	"golang.org/x/net/context"
 	"net/http"
 	"strings"
 	"time"
@@ -64,13 +63,12 @@ DELETE FROM flcache WHERE id=:id
 `
 
 type Cache struct {
-	ctx      context.Context
 	db       *sqlx.DB
 	fbinsize time.Duration
 }
 
-func NewCache(ctx context.Context, db *sqlx.DB, fbinsize time.Duration) (*Cache, error) {
-	c := &Cache{ctx: ctx, db: db, fbinsize: fbinsize}
+func NewCache(db *sqlx.DB, fbinsize time.Duration) (*Cache, error) {
+	c := &Cache{db: db, fbinsize: fbinsize}
 	err := c.init()
 	if err != nil {
 		return nil, err
