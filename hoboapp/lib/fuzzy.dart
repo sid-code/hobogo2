@@ -4,10 +4,10 @@ import 'levenshtein.dart';
 class Fuzzy {
   //https://stackoverflow.com/questions/5924105/how-many-characters-can-be-mapped-with-unicode
   //static final int _charMax = 17 * 65536 - 2048 - 66;
-  static final int _charMax = 55294;
+  static final int _charMax = 128;
   static final List<int> _patternMask = new List<int>(_charMax + 1);
-  Fuzzy(){
-    for(int i = 0;i <= _charMax;++i){
+  Fuzzy() {
+    for (int i = 0; i <= _charMax; ++i) {
       _patternMask[i] = ~0;
     }
   }
@@ -21,11 +21,10 @@ class Fuzzy {
     int retVal = -1;
     int m = pattern.length;
     List<int> R = new List<int>(maxDistance + 1);
-    List<int> patternMask = _patternMask;
+    List<int> patternMask = new List.from(_patternMask);
     for (int i = 0; i <= maxDistance; ++i) {
       R[i] = ~1;
     }
-    patternMask = _patternMask;
     for (int i = 0; i < m; ++i) {
       patternMask[pattern[i]] &= ~(1 << i);
     }
