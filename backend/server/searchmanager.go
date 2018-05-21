@@ -59,7 +59,11 @@ func sendResult(conn *websocket.Conn, result []*spapi.Flight) {
 		log.Print(result)
 		return
 	}
-	conn.WriteMessage(websocket.TextMessage, buf)
+
+	err = conn.WriteMessage(websocket.TextMessage, buf)
+	if err != nil {
+		log.Printf("%v\n", err)
+	}
 }
 
 func (s *Search) newClient(conn *websocket.Conn) {
