@@ -29,6 +29,10 @@ func (t JSONmsSinceEpochTime) MarshalJSON() ([]byte, error) {
 	return []byte(msSinceEpoch), nil
 }
 
+func (t JSONmsSinceEpochTime) Value() (driver.Value, error) {
+	return driver.Value(time.Time(t)), nil
+}
+
 // A Flight object (slice) is what is returned from this API abstraction
 type Flight struct {
 	ID         int64                `db:"id"          json:"id"`
