@@ -1,6 +1,7 @@
 package spapi
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"flights/util"
 	"fmt"
