@@ -70,6 +70,7 @@ func (s *Search) newClient(conn *websocket.Conn) {
 	for _, b := range s.backlog {
 		sendResult(conn, b)
 	}
+	s.subscribers = append(s.subscribers, conn)
 }
 
 func (s *Search) finish() {
@@ -123,7 +124,6 @@ func (s *Search) UpgradeToWS(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	s.subscribers = append(s.subscribers, conn)
 	s.newClient(conn)
 
 	return nil
