@@ -45,8 +45,8 @@ func NewPlanner(config Config, cl *spapi.Client) *Planner {
 	fakeFlight := &spapi.Flight{
 		Loc:        config.HomeLoc,
 		From:       "",
-		DepartTime: time.Unix(0, 0),
-		ArriveTime: config.TimeWindow.Start,
+		DepartTime: spapi.JSONmsSinceEpochTime(time.Unix(0, 0)),
+		ArriveTime: spapi.JSONmsSinceEpochTime(config.TimeWindow.Start),
 		Price:      0,
 		DeepLink:   "",
 		Passengers: 0,
@@ -124,7 +124,7 @@ func (n *Node) tryAddChild(c *Node, flightDiff time.Duration) int {
 		ecf := ec.fl
 		cf := c.fl
 		if ecf.Loc == cf.Loc && ecf.Price > cf.Price {
-			timeDiff := c.fl.DepartTime.Sub(ec.fl.DepartTime)
+			timeDiff := time.Time(c.fl.DepartTime).Sub(time.Time(ec.fl.DepartTime))
 			if timeDiff < flightDiff {
 				n.children[i] = c
 				return i
@@ -159,7 +159,7 @@ func (n *Node) BuildChain() []*spapi.Flight {
 
 func (pl *Planner) searchNext(n *Node, childc chan *Node, errc chan error, finc chan bool) {
 	config := pl.config
-	dateFrom := n.fl.ArriveTime.Add(config.MinStay)
+	dateFrom := time.Time(n.fl.ArriveTime).Add(config.MinStay)
 	dateTo := minTime(dateFrom.Add(config.MaxStay), config.TimeWindow.End)
 
 	if dateFrom.After(dateTo) {
@@ -217,7 +217,7 @@ func addSorted(frontier []*Node, child *Node, fBinSize time.Duration) []*Node {
 			newFrontier = append(newFrontier, n)
 			replaced = true
 		} else if n.depth == child.depth && n.fl.From == child.fl.From && n.fl.Loc == child.fl.Loc &&
-			math.Abs(float64(n.fl.DepartTime.Sub(child.fl.DepartTime))) <
+			math.Abs(float64(time.Time(n.fl.DepartTime).Sub(time.Time(child.fl.DepartTime)))) <
 				float64(fBinSize) &&
 			n.fl.Price >= child.fl.Price {
 		} else {
