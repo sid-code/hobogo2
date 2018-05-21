@@ -124,33 +124,29 @@ class _ResultScreenState extends State<ResultScreen> {
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            new StreamBuilder(
+            new Text(ResultScreen.token),
+            new Flexible(
+                child: new StreamBuilder(
               stream: ws2,
               builder: (context, snapshot) {
                 print(snapshot.data);
                 if (snapshot.data != null && snapshot.data.length > 0) {
                   dynamic data = JSON.decode(snapshot.data);
-                  return new ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      print('Building Flight Object');
-                      Flight f = new Flight(
-                          int.parse(data[index]['id'].toString()),
-                          data[index]['loc'],
-                          data[index]['from'].toString(),
-                          int.parse(data[index]['departtime'].toString()),
-                          int.parse(data[index]['arrivetime'].toString()),
-                          double.parse(data[index]['price'].toString()),
-                          data[index]['deeplink'].toString(),
-                          int.parse(data[index]['passengers'].toString()));
-                      return _genResult(f);
-                    },
-                  );
+                  Flight f = new Flight(
+                      int.parse(data[0]['id'].toString()),
+                      data[0]['loc'],
+                      data[0]['from'].toString(),
+                      int.parse(data[0]['departtime'].toString()),
+                      int.parse(data[0]['arrivetime'].toString()),
+                      double.parse(data[0]['price'].toString()),
+                      data[0]['deeplink'].toString(),
+                      int.parse(data[0]['passengers'].toString()));
+                  return _genResult(f);
                 } else {
-                  return new Text('Please wait for results :)');
+                  return new Text('nothing here');
                 }
               },
-            ),
+            )),
           ],
         ),
       ),
