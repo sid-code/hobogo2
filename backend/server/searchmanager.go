@@ -70,6 +70,9 @@ func (s *Search) newClient(conn *websocket.Conn) {
 	for _, b := range s.backlog {
 		sendResult(conn, b)
 	}
+	// Note: due to this, any results being discovered during the
+	// above will not be added. This is possibly to avoid race
+	// conditions.
 	s.subscribers = append(s.subscribers, conn)
 }
 
