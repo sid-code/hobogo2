@@ -1,6 +1,7 @@
 package spapi
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"flights/util"
 	"fmt"
@@ -27,6 +28,10 @@ type JSONmsSinceEpochTime time.Time
 func (t JSONmsSinceEpochTime) MarshalJSON() ([]byte, error) {
 	msSinceEpoch := fmt.Sprintf("\"%d\"", time.Time(t).Unix()*1000)
 	return []byte(msSinceEpoch), nil
+}
+
+func (t JSONmsSinceEpochTime) Value() (driver.Value, error) {
+	return driver.Value(time.Time(t)), nil
 }
 
 // A Flight object (slice) is what is returned from this API abstraction
