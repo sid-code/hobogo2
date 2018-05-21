@@ -302,7 +302,8 @@ class _ParameterScreenState extends State<ParameterScreen> {
       print(response.statusCode);
       print(response.responseBody);
       if (response.statusCode == 200) {
-        ResultScreen.token = response.responseBody;
+        Map responseList = JSON.decode(response.responseBody);
+        ResultScreen.token = responseList['token'];
       } else {
         //SHOW ERROR
         ResultScreen.token = 'hi';
