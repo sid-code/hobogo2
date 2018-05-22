@@ -1,0 +1,8 @@
+SPLASH TEXT:
+Odysearch can help you explore the world with the cheapest flights possible.
+You provide destinations and it chooses an order and times within your constraints.
+
+TIPS:
+The wider your search range, the lower you can expect the price to be.
+Be mindful that popular airports (for example, LAX) have more, and therefore some cheaper flights.
+(optional) This tool is useless if you already have decided exactly when or in what order you want to visit your destinations
