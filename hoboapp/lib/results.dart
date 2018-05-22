@@ -8,6 +8,8 @@ import 'package:csv/csv.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+Icon arrow = new Icon(IconData(0xe5c8, fontFamily: 'MaterialIcons'));
+
 class ResultScreen extends StatefulWidget {
   static String token = '';
   ResultScreen({Key key, this.title}) : super(key: key);
