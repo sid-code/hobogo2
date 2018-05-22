@@ -19,6 +19,7 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   List<FlightItem> _flights = [];
+  List<FlightItems> _flights2 = [];
   IOWebSocketChannel ws;
   WebSocket ws2;
   bool firstRun = true;
@@ -33,82 +34,82 @@ class _ResultScreenState extends State<ResultScreen> {
                 padding: const EdgeInsets.all(4.0),
                 itemExtent: 40.0,
                 children: <Widget>[
-          new Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              new Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
+              new Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text(
-                    "\$ " + inFlight.Price.toString(),
-                    textAlign: TextAlign.right,
-                    style: new TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
+                  new Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        "\$ " + inFlight.Price.toString(),
+                        textAlign: TextAlign.right,
+                        style: new TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(
-                    new DateFormat.yMd().format(inFlight.DepartTime) +
-                        '\n' +
-                        new DateFormat.jm().format(inFlight.DepartTime),
-                    textAlign: TextAlign.left),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(
+                        new DateFormat.yMd().format(inFlight.DepartTime) +
+                            '\n' +
+                            new DateFormat.jm().format(inFlight.DepartTime),
+                        textAlign: TextAlign.left),
+                  ),
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(inFlight.From, textAlign: TextAlign.center),
+                  ),
+                  new Icon(IconData(0xe5c8, fontFamily: 'MaterialIcons')),
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(
+                      inFlight.Loc,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(
+                        new DateFormat.yMd().format(inFlight.ArriveTime) +
+                            '\n' +
+                            new DateFormat.jm().format(inFlight.ArriveTime),
+                        textAlign: TextAlign.right),
+                  ),
+                  new Icon(
+                    IconData(0xe192, fontFamily: 'MaterialIcons'),
+                  ),
+                  new Align(
+                      alignment: Alignment.centerRight,
+                      child: new Text(
+                        inFlight.TravelTime.inHours.toString() +
+                            'h ' +
+                            (inFlight.TravelTime.inMinutes -
+                                    60 * inFlight.TravelTime.inHours)
+                                .toString() +
+                            'm',
+                        textAlign: TextAlign.left,
+                      ))
+                ],
               ),
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(inFlight.From, textAlign: TextAlign.center),
-              ),
-              new Icon(IconData(0xe5c8, fontFamily: 'MaterialIcons')),
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(
-                  inFlight.Loc,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(
-                    new DateFormat.yMd().format(inFlight.ArriveTime) +
-                        '\n' +
-                        new DateFormat.jm().format(inFlight.ArriveTime),
-                    textAlign: TextAlign.right),
-              ),
-              new Icon(
-                IconData(0xe192, fontFamily: 'MaterialIcons'),
-              ),
-              new Align(
-                  alignment: Alignment.centerRight,
-                  child: new Text(
-                    inFlight.TravelTime.inHours.toString() +
-                        'h ' +
-                        (inFlight.TravelTime.inMinutes -
-                                60 * inFlight.TravelTime.inHours)
-                            .toString() +
-                        'm',
-                    textAlign: TextAlign.left,
-                  ))
-            ],
-          ),
-        ])));
+            ])));
   }
 
   bool expanded = false;
-
+/*
   _buildList(List data) {
     for (int i = 0; i < data.length; i++) {
       Flight f = new Flight(
@@ -128,6 +129,23 @@ class _ResultScreenState extends State<ResultScreen> {
         _flights.add(new FlightItem(flightCard: _genResult(f)));
       }
     }
+  }
+*/
+  _buildList(List data) {
+    List<SizedBox> addVal = [];
+    for (int i = 0; i < data.length; i++) {
+      Flight f = new Flight(
+          int.parse(data[i]['id'].toString()),
+          data[i]['loc'],
+          data[i]['from'].toString(),
+          int.parse(data[i]['departtime'].toString()),
+          int.parse(data[i]['arrivetime'].toString()),
+          double.parse(data[i]['price'].toString()),
+          data[i]['deeplink'].toString(),
+          int.parse(data[i]['passengers'].toString()));
+      addVal.add(_genResult(f));
+    }
+    _flights2.add(new FlightItems(flightCards: addVal));
   }
 
   @override
@@ -164,21 +182,28 @@ class _ResultScreenState extends State<ResultScreen> {
               builder: (context, snapshot) {
                 print(snapshot.data);
                 if (snapshot.data != null && snapshot.data.length > 0) {
-                  if (firstRun2) {
-                    _buildList(JSON.decode(snapshot.data));
-                    firstRun2 = false;
-                  }
+                  _buildList(JSON.decode(snapshot.data));
                   int index = 0;
                   return new ExpansionPanelList(
                       expansionCallback: (int index, bool isExpanded) {
                         setState(() {
                           print('setting state');
-                          _flights[index].isExpanded = !isExpanded;
+                          _flights2[index].isExpanded = !isExpanded;
                           print('setstate index:' + index.toString());
-                          print(_flights[index].isExpanded);
+                          print(_flights2[index].isExpanded);
                         });
                       },
-                      children: _flights.map((FlightItem item) {
+                      children: _flights2.map((FlightItems item) {
+                        return new ExpansionPanel(
+                            isExpanded: item.isExpanded,
+                            headerBuilder: item.headerBuilder,
+                            body: new Column(
+                              children: item.flightCards,
+                            ));
+                      }).toList()
+
+                      /*
+                      _flights.map((FlightItem item) {
                         print('index:' + index.toString());
                         print(_flights[index].isExpanded);
                         print(_flights.length);
@@ -187,7 +212,9 @@ class _ResultScreenState extends State<ResultScreen> {
                             isExpanded: item.isExpanded,
                             headerBuilder: item.headerBuilder,
                             body: item.getFlightCard());
-                      }).toList());
+                      }).toList()
+                      */
+                      );
                 } else {
                   return new Text('Please wait for results :)');
                 }
@@ -242,6 +269,19 @@ class Flight {
     this.DeepLink = deeplink;
     this.Passengers = passengers;
     this.TravelTime = this.ArriveTime.difference(this.DepartTime);
+  }
+}
+
+class FlightItems {
+  FlightItems({this.flightCards});
+
+  List<SizedBox> flightCards = [];
+  bool isExpanded = false;
+
+  ExpansionPanelHeaderBuilder get headerBuilder {
+    return (BuildContext context, bool isExpanded) {
+      return new Text('header');
+    };
   }
 }
 
