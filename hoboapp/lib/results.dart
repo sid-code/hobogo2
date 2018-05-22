@@ -71,6 +71,7 @@ class _ResultScreenState extends State<ResultScreen> {
                     alignment: Alignment.center,
                     child: new Text(inFlight.From, textAlign: TextAlign.center),
                   ),
+                  //AIRPLANE ICON
                   new Icon(IconData(0xe5c8, fontFamily: 'MaterialIcons')),
                   new Align(
                     widthFactor: 1.5,
