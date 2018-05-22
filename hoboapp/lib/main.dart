@@ -15,7 +15,7 @@ Map<String, String> _nameToCode = new Map<String, String>();
 List<String> _currentAirportCodes = [];
 PostData postData = new PostData();
 Fuzzy _fuzz;
-String _url = 'http://142.4.213.30:8080/search';
+String _url = 'http://35.196.30.233:80/search';
 //String _url = 'http://requestbin.fullcontact.com/1401f421';
 
 void main() async {
@@ -292,13 +292,16 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   void _sendPost() {
     Submit sub = new Submit();
+    /*
     postData.homeLoc = _currentAirportCodes[0];
     print(_currentAirportCodes);
     postData.destList =
         _currentAirportCodes.getRange(1, _currentAirportCodes.length).toList();
 
     print(postData.googleCantJSONThingsSoIWillDoIt());
-    sub.post(postData.googleCantJSONThingsSoIWillDoIt(), _url).then((Response response) {
+    */
+    //sub.post(postData.googleCantJSONThingsSoIWillDoIt(), _url).then((Response response) {
+    sub.post(r'{"homeloc":"LAX","destlist":["PRG","BUD","LGW","FCO","DUB"],"starttime":1527145200000,"endtime":1528959600000,"maxstay":6,"minstay":2,"maxprice":1000,"minlength":3,"passengers":1}', _url).then((Response response) {
       print(response.statusCode);
       print(response.responseBody);
       if (response.statusCode == 200) {
