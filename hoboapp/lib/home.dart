@@ -32,7 +32,6 @@ class HomeScreen extends StatefulWidget {
   HomeScreen({Key key, this.title}) : super(key: key);
   final String title;
 
-  //_init();
   @override
   _HomeScreenState createState() => new _HomeScreenState();
 }
@@ -41,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin<HomeScreen> {
   @override
   bool get wantKeepAlive => true;
+  bool firstRun = true;
   // List of all strings matching search
   List<String> _resultList = [];
   // List of all airport codes matching search
@@ -127,6 +127,10 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
+    if(firstRun){
+      _init();
+      firstRun = !firstRun;
+    }
     // Top 'appBar' bar
     return new Scaffold(
         appBar: new AppBar(
@@ -209,9 +213,6 @@ class _ParameterScreenState extends State<ParameterScreen> {
           if (tif == oneLineNumbers) {
             int val = int.tryParse(newVal);
             switch (hint) {
-              case 'Max Stay':
-                postData.maxStay = val;
-                break;
               case 'Min Stay':
                 postData.minStay = val;
                 break;
@@ -246,6 +247,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
             .then((DateTime dt) {
           setState(() {
             if (index == 0) {
+              print(dt);
               postData.startTime = dt.millisecondsSinceEpoch;
               start = _buildClickableDateField(dt.toString(), context, index);
             } else if (index == 1) {
@@ -333,9 +335,10 @@ class _ParameterScreenState extends State<ParameterScreen> {
     return dropList;
   }
 
-  String testVal1 = '1';
-  String testVal2 = '2';
-  String testVal3 = '3';
+  String minStayVal = '1';
+  String maxStayVal = '1';
+  String minLengthVal = '1';
+  String passVal = '1';
 
   bool firstRun = false;
   @override
@@ -356,6 +359,9 @@ class _ParameterScreenState extends State<ParameterScreen> {
             width: 400.0,
             child:
             new Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.start,
+
               children: <Widget>[
                 new Row(
                   mainAxisSize: MainAxisSize.min,
@@ -380,11 +386,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
                             ),
                             new Flexible(
                               child: new DropdownButton<String>(
-                                  value: testVal1,
+                                  value: maxStayVal,
                                   items: dropItemList(1, 9),
                                   onChanged: (String newVal) {
                                     setState(() {
-                                      testVal1 = newVal;
+                                      maxStayVal = newVal;
+                                      postData.maxStay = int.parse(newVal);
                                     });
                                   }),
                             ),
@@ -411,11 +418,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
                             ),
                             new Flexible(
                               child: new DropdownButton<String>(
-                                  value: testVal2,
+                                  value: minStayVal,
                                   items: dropItemList(1, 9),
                                   onChanged: (String newVal) {
                                     setState(() {
-                                      testVal2 = newVal;
+                                      minStayVal = newVal;
+                                      postData.minStay = int.parse(newVal);
                                     });
                                   }),
                             ),
@@ -442,11 +450,13 @@ class _ParameterScreenState extends State<ParameterScreen> {
                             ),
                             new Flexible(
                               child: new DropdownButton<String>(
-                                  value: testVal3,
+                                  value: minLengthVal,
+                                  hint: Text('1'),
                                   items: dropItemList(1, 9),
                                   onChanged: (String newVal) {
                                     setState(() {
-                                      testVal3 = newVal;
+                                      minLengthVal = newVal;
+                                      postData.minLength = int.parse(newVal);
                                     });
                                   }),
                             ),
@@ -458,14 +468,98 @@ class _ParameterScreenState extends State<ParameterScreen> {
                 ),
                 new Row(
                   children: <Widget>[
-                    Text('testrow'),
+                    new SizedBox(
+                      width: 200.0,
+                      height: 150.0,
+                      child:
+                        new Container(
+                          margin: const EdgeInsets.fromLTRB(5.0,50.0,5.0,50.0),
+                          padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                          decoration: new BoxDecoration(
+                            border: new Border.all(color: Colors.black),
+                          ),
+                          child:
+                          _genField('Max Price',
+                              kt: TextInputType.number, tif: oneLineNumbers),
+                        ),
+                    ),
+                    new SizedBox(
+                      width: 200.0,
+                      child:
+                      new Container(
+                        margin: const EdgeInsets.fromLTRB(5.0,50.0,5.0,50.0),
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                        decoration: new BoxDecoration(
+                          border: new Border.all(color: Colors.black),
+                        ),
+                        child:
+                        new Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            new Expanded(
+                              child: new Text('Passengers:', textAlign: TextAlign.left),
+                            ),
+                            new Flexible(
+                              child:
+                              new DropdownButton<String>(
+                                  value: passVal,
+                                  items: dropItemList(1, 9),
+                                  onChanged: (String newVal) {
+                                    setState(() {
+                                      passVal = newVal;
+                                      postData.passengers = int.parse(newVal);
+                                    });
+                                  }),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                Text('test'),
-                Text('test'),
-                Text('test'),
-                Text('test'),
-
+                new Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                  new SizedBox(
+                    width: 175.0,
+                    child:
+                    new FlatButton(child: start),
+                  ),
+                    new SizedBox(
+                      width: 175.0,
+                      child:
+                      new FlatButton(child: end),
+                    )
+                  ],
+                ),
+                new Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    new SizedBox(
+                      width: 100.0,
+                      child:
+                      new FlatButton(
+                          child: new Text('Back'),
+                          onPressed: () {
+                            Navigator.pop(
+                              context,
+                              true,
+                            );
+                          }),
+                    ),
+                    new SizedBox(
+                      width: 100.0,
+                      child:
+                      new FlatButton(
+                          child: new Text('Submit'),
+                          onPressed: () {
+                            _sendPost(context);
+                            print('Submit');
+                          }),
+                    )
+                  ],
+                )
               ],
             ),
         ),
@@ -487,9 +581,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
 
-                      new Flexible(
-                        child: new Text('Min Stay:', textAlign: TextAlign.left),
-                      ),
+
                       new Flexible(
                         child:
                             new Text('Min Length:', textAlign: TextAlign.left),
@@ -526,27 +618,17 @@ class _ParameterScreenState extends State<ParameterScreen> {
                   ),
                 ],
               ),
-              _genField('Max Price',
-                  kt: TextInputType.number, tif: oneLineNumbers),
               _genField('Number of Passengers',
                   kt: TextInputType.number, tif: oneLineNumbers),
-              new Flexible(
-                child: new DropdownButton<String>(
-                    value: testVal3,
-                    items: dropItemList(1, 9),
-                    onChanged: (String newVal) {
-                      setState(() {
-                        testVal3 = newVal;
-                      });
-                    }),
+
               ),
               new Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  new FlatButton(child: start),
-                  new FlatButton(child: end),
+
+
                 ],
               ),
               new Row(
@@ -554,20 +636,8 @@ class _ParameterScreenState extends State<ParameterScreen> {
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  new FlatButton(
-                      child: new Text('Back'),
-                      onPressed: () {
-                        Navigator.pop(
-                          context,
-                          true,
-                        );
-                      }),
-                  new FlatButton(
-                      child: new Text('Submit'),
-                      onPressed: () {
-                        _sendPost(context);
-                        print('Submit');
-                      }),
+
+
                 ],
               ),
             ],
