@@ -202,7 +202,7 @@ class _ResultScreenState extends State<ResultScreen> {
                             ));
                       }).toList());
                 } else {
-                  return new Text('Please wait for results :)');
+                  return new Text('We are searching flights for you :)\nPlease give us a few minutes');
                 }
               },
             ),
