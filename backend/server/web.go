@@ -10,6 +10,7 @@ import (
 	"github.com/satori/go.uuid"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -165,6 +166,10 @@ func (s *FlightSearchServer) subscribe(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
 		token := r.URL.Query().Get("token")
+
+		// This is the easiest way to work around a bug in the
+		// client that uses this server.
+		token = strings.TrimRight(token, "#")
 		if token == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprintf(w, "must provide UUID token")
