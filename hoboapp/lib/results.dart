@@ -20,7 +20,6 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  List<FlightItem> _flights = [];
   List<FlightItems> _flights2 = [];
   IOWebSocketChannel ws;
   WebSocket ws2;
@@ -30,113 +29,105 @@ class _ResultScreenState extends State<ResultScreen> {
     Flight inFlight = input;
     return new SizedBox(
         width: 400.0,
-        height: 200.0,
+        height: 84.0,
         child: new Card(
-            child: new ListView(
-                padding: const EdgeInsets.all(4.0),
-                itemExtent: 40.0,
+            child: new Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+          new Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              new Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-              new Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  new Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        "\$ " + inFlight.Price.toString(),
-                        textAlign: TextAlign.right,
-                        style: new TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(
-                        new DateFormat.yMd().format(inFlight.DepartTime) +
-                            '\n' +
-                            new DateFormat.jm().format(inFlight.DepartTime),
-                        textAlign: TextAlign.left),
-                  ),
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(inFlight.From, textAlign: TextAlign.center),
-                  ),
-                  //AIRPLANE ICON
-                  new Icon(IconData(0xe5c8, fontFamily: 'MaterialIcons')),
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(
-                      inFlight.Loc,
-                      textAlign: TextAlign.center,
+                  Text(
+                    "\$ " + inFlight.Price.toString(),
+                    textAlign: TextAlign.right,
+                    style: new TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
                     ),
                   ),
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(
-                        new DateFormat.yMd().format(inFlight.ArriveTime) +
-                            '\n' +
-                            new DateFormat.jm().format(inFlight.ArriveTime),
-                        textAlign: TextAlign.right),
-                  ),
-                  new Icon(
-                    IconData(0xe192, fontFamily: 'MaterialIcons'),
-                  ),
-                  new Align(
-                      alignment: Alignment.centerRight,
-                      child: new Text(
-                        inFlight.TravelTime.inHours.toString() +
-                            'h ' +
-                            (inFlight.TravelTime.inMinutes -
-                                    60 * inFlight.TravelTime.inHours)
-                                .toString() +
-                            'm',
-                        textAlign: TextAlign.left,
-                      ))
                 ],
               ),
-            ])));
+            ],
+          ),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
+                child: new Text(
+                    new DateFormat.yMd().format(inFlight.DepartTime) +
+                        '\n' +
+                        new DateFormat.jm().format(inFlight.DepartTime),
+                    textAlign: TextAlign.left),
+              ),
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
+                child: new Text(inFlight.From, textAlign: TextAlign.center),
+              ),
+              arrow,
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
+                child: new Text(
+                  inFlight.Loc,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              new Align(
+                widthFactor: 1.5,
+                alignment: Alignment.center,
+                child: new Text(
+                    new DateFormat.yMd().format(inFlight.ArriveTime) +
+                        '\n' +
+                        new DateFormat.jm().format(inFlight.ArriveTime),
+                    textAlign: TextAlign.right),
+              ),
+              new Icon(
+                IconData(0xe192, fontFamily: 'MaterialIcons'),
+              ),
+              new Align(
+                  alignment: Alignment.centerRight,
+                  child: new Text(
+                    inFlight.TravelTime.inHours.toString() +
+                        'h ' +
+                        (inFlight.TravelTime.inMinutes -
+                                60 * inFlight.TravelTime.inHours)
+                            .toString() +
+                        'm',
+                    textAlign: TextAlign.left,
+                  ))
+            ],
+          ),
+        ])));
   }
 
-  bool expanded = false;
-/*
   _buildList(List data) {
-    for (int i = 0; i < data.length; i++) {
-      Flight f = new Flight(
-          int.parse(data[i]['id'].toString()),
-          data[i]['loc'],
-          data[i]['from'].toString(),
-          int.parse(data[i]['departtime'].toString()),
-          int.parse(data[i]['arrivetime'].toString()),
-          double.parse(data[i]['price'].toString()),
-          data[i]['deeplink'].toString(),
-          int.parse(data[i]['passengers'].toString()));
-      if (i < _flights.length) {
-        print('saving expanded val');
-        _flights[i].flightCard = _genResult(f);
-      } else {
-        print('fucking expanded val');
-        _flights.add(new FlightItem(flightCard: _genResult(f)));
-      }
-    }
-  }
-*/
-  _buildList(List data) {
+    double totalPrice = 0.0;
+    DateTime tripStart = DateTime.fromMillisecondsSinceEpoch(
+        int.parse(data[0]['departtime']),
+        isUtc: true);
+    DateTime tripEnd = DateTime.fromMillisecondsSinceEpoch(
+        int.parse(data[data.length - 1]['arrivetime']),
+        isUtc: true);
+    print(tripStart);
+    print(tripEnd);
+    List<String> codes = [];
     List<SizedBox> addVal = [];
     for (int i = 0; i < data.length; i++) {
+      totalPrice += double.parse(data[i]['price'].toString());
+      if (i == 0) {
+        codes.add(data[i]['from']);
+        codes.add(data[i]['loc']);
+      } else {
+        codes.add(data[i]['loc']);
+      }
       Flight f = new Flight(
           int.parse(data[i]['id'].toString()),
           data[i]['loc'],
@@ -148,7 +139,13 @@ class _ResultScreenState extends State<ResultScreen> {
           int.parse(data[i]['passengers'].toString()));
       addVal.add(_genResult(f));
     }
-    _flights2.add(new FlightItems(flightCards: addVal));
+    _flights2.add(new FlightItems(
+        flightCards: addVal,
+        price: totalPrice,
+        tripStart: tripStart,
+        tripEnd: tripEnd,
+        codes: codes));
+    _flights2.sort((a, b) => a.price.compareTo(b.price));
   }
 
   @override
@@ -203,42 +200,10 @@ class _ResultScreenState extends State<ResultScreen> {
                             body: new Column(
                               children: item.flightCards,
                             ));
-                      }).toList()
-
-                      /*
-                      _flights.map((FlightItem item) {
-                        print('index:' + index.toString());
-                        print(_flights[index].isExpanded);
-                        print(_flights.length);
-                        index++;
-                        return new ExpansionPanel(
-                            isExpanded: item.isExpanded,
-                            headerBuilder: item.headerBuilder,
-                            body: item.getFlightCard());
-                      }).toList()
-                      */
-                      );
+                      }).toList());
                 } else {
                   return new Text('Please wait for results :)');
                 }
-                /*
-                print(snapshot.data);
-                if (snapshot.data != null && snapshot.data.length > 0) {
-                  dynamic data = JSON.decode(snapshot.data);
-                  Flight f = new Flight(
-                      int.parse(data[0]['id'].toString()),
-                      data[0]['loc'],
-                      data[0]['from'].toString(),
-                      int.parse(data[0]['departtime'].toString()),
-                      int.parse(data[0]['arrivetime'].toString()),
-                      double.parse(data[0]['price'].toString()),
-                      data[0]['deeplink'].toString(),
-                      int.parse(data[0]['passengers'].toString()));
-                  return _genResult(f);
-                } else {
-                  return new Text('nothing here');
-                }
-                */
               },
             ),
           ),
@@ -276,31 +241,40 @@ class Flight {
 }
 
 class FlightItems {
-  FlightItems({this.flightCards});
+  FlightItems(
+      {this.flightCards, this.price, this.tripStart, this.tripEnd, this.codes});
 
   List<SizedBox> flightCards = [];
+  double price;
+  DateTime tripStart;
+  DateTime tripEnd;
+  List<String> codes;
   bool isExpanded = false;
 
   ExpansionPanelHeaderBuilder get headerBuilder {
     return (BuildContext context, bool isExpanded) {
-      return new Text('header');
-    };
-  }
-}
-
-class FlightItem {
-  FlightItem({this.flightCard});
-
-  SizedBox flightCard;
-  bool isExpanded = false;
-
-  SizedBox getFlightCard() {
-    return flightCard;
-  }
-
-  ExpansionPanelHeaderBuilder get headerBuilder {
-    return (BuildContext context, bool isExpanded) {
-      return new Text('header');
+      List<Widget> vals = [];
+      List<Widget> vals2 = [];
+      List<Widget> vals3 = [];
+      vals.add(new Text(new DateFormat.yMd().format(tripStart).toString()));
+      vals.add(new Text(new DateFormat.jm().format(tripStart).toString()));
+      for (int i = 0; i < codes.length; i++) {
+        vals2.add(new Text(codes[i]));
+        if (i < codes.length - 1) {
+          vals2.add(arrow);
+        }
+      }
+      vals3.add(new Text(new DateFormat.yMd().format(tripEnd).toString()));
+      vals3.add(new Text(new DateFormat.jm().format(tripEnd).toString()));
+      return new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            new Column(children: vals),
+            new Row(children: vals2),
+            new Column(children: vals3),
+            new Text('\$' + price.toString()),
+          ]);
     };
   }
 }
