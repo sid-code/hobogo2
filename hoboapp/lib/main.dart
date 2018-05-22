@@ -282,15 +282,14 @@ class _ParameterScreenState extends State<ParameterScreen> {
         });
       },
       child: new Text(text,
-      textAlign: TextAlign.center,
-        style: new TextStyle(
-          color: Colors.black,
-        )
-      ),
+          textAlign: TextAlign.center,
+          style: new TextStyle(
+            color: Colors.black,
+          )),
     );
   }
 
-  void _sendPost() {
+  void _sendPost(BuildContext context) {
     Submit sub = new Submit();
     /*
     postData.homeLoc = _currentAirportCodes[0];
@@ -301,12 +300,20 @@ class _ParameterScreenState extends State<ParameterScreen> {
     print(postData.googleCantJSONThingsSoIWillDoIt());
     */
     //sub.post(postData.googleCantJSONThingsSoIWillDoIt(), _url).then((Response response) {
-    sub.post(r'{"homeloc":"LAX","destlist":["PRG","BUD","LGW","FCO","DUB"],"starttime":1527145200000,"endtime":1528959600000,"maxstay":6,"minstay":2,"maxprice":1000,"minlength":3,"passengers":1}', _url).then((Response response) {
+    sub
+        .post(
+            r'{"homeloc":"LAX","destlist":["PRG","BUD","LGW","FCO","DUB"],"starttime":1527145200000,"endtime":1528959600000,"maxstay":6,"minstay":2,"maxprice":1000,"minlength":3,"passengers":1}',
+            _url)
+        .then((Response response) {
       print(response.statusCode);
       print(response.responseBody);
       if (response.statusCode == 200) {
         Map responseList = JSON.decode(response.responseBody);
         ResultScreen.token = responseList['token'];
+        Navigator.push(
+          context,
+          new MaterialPageRoute(builder: (context) => new ResultScreen()),
+        );
       } else {
         //SHOW ERROR
         ResultScreen.token = 'hi';
@@ -322,7 +329,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
 
   List<DropdownMenuItem<String>> dropItemList(int min, int max) {
     List<DropdownMenuItem<String>> dropList = [];
-    if(max < 10) {
+    if (max < 10) {
       for (int i = min; i <= max; i++) {
         DropdownMenuItem item = new DropdownMenuItem<String>(
           child: new Text(i.toString()),
@@ -330,8 +337,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
         );
         dropList.add(item);
       }
-    }
-    else if(max >= 10 && max < 100) {
+    } else if (max >= 10 && max < 100) {
       for (int i = min; i < 10; i++) {
         DropdownMenuItem item = new DropdownMenuItem<String>(
           child: new Text(i.toString() + ' '),
@@ -347,8 +353,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
         );
         dropList.add(item);
       }
-    }
-    else {
+    } else {
       print('someome had more than 100 destinations...');
     }
     return dropList;
@@ -371,8 +376,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
           title: new Text('Param Screen'),
         ),
         body: new Center(
-          child:
-          new Column(
+          child: new Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
@@ -387,19 +391,14 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       new Flexible(
-                        child: new Text('Max Stay:',
-                            textAlign: TextAlign.left
-                        ),
+                        child: new Text('Max Stay:', textAlign: TextAlign.left),
                       ),
                       new Flexible(
-                        child: new Text('Min Stay:',
-                            textAlign: TextAlign.left
-                        ),
+                        child: new Text('Min Stay:', textAlign: TextAlign.left),
                       ),
                       new Flexible(
-                        child: new Text('Min Length:',
-                            textAlign: TextAlign.left
-                        ),
+                        child:
+                            new Text('Min Length:', textAlign: TextAlign.left),
                       ),
                     ],
                   ),
@@ -409,40 +408,34 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       new Flexible(
-                        child:
-                        new DropdownButton<String>(
+                        child: new DropdownButton<String>(
                             value: testVal1,
-                            items: dropItemList(1,9),
-                            onChanged: (String newVal){
+                            items: dropItemList(1, 9),
+                            onChanged: (String newVal) {
                               setState(() {
                                 testVal1 = newVal;
                               });
-                            }
-                        ),
+                            }),
                       ),
                       new Flexible(
-                        child:
-                        new DropdownButton<String>(
+                        child: new DropdownButton<String>(
                             value: testVal2,
-                            items: dropItemList(1,9),
-                            onChanged: (String newVal){
+                            items: dropItemList(1, 9),
+                            onChanged: (String newVal) {
                               setState(() {
                                 testVal2 = newVal;
                               });
-                            }
-                        ),
+                            }),
                       ),
                       new Flexible(
-                        child:
-                        new DropdownButton<String>(
+                        child: new DropdownButton<String>(
                             value: testVal3,
-                            items: dropItemList(1,9),
-                            onChanged: (String newVal){
+                            items: dropItemList(1, 9),
+                            onChanged: (String newVal) {
                               setState(() {
                                 testVal3 = newVal;
                               });
-                            }
-                        ),
+                            }),
                       ),
                     ],
                   ),
@@ -453,28 +446,22 @@ class _ParameterScreenState extends State<ParameterScreen> {
               _genField('Number of Passengers',
                   kt: TextInputType.number, tif: oneLineNumbers),
               new Flexible(
-                child:
-                new DropdownButton<String>(
+                child: new DropdownButton<String>(
                     value: testVal3,
-                    items: dropItemList(1,9),
-                    onChanged: (String newVal){
+                    items: dropItemList(1, 9),
+                    onChanged: (String newVal) {
                       setState(() {
                         testVal3 = newVal;
                       });
-                    }
-                ),
+                    }),
               ),
               new Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  new FlatButton(
-                      child: start
-                  ),
-                  new FlatButton(
-                      child: end
-                  ),
+                  new FlatButton(child: start),
+                  new FlatButton(child: end),
                 ],
               ),
               new Row(
@@ -493,12 +480,8 @@ class _ParameterScreenState extends State<ParameterScreen> {
                   new FlatButton(
                       child: new Text('Submit'),
                       onPressed: () {
-                        _sendPost();
+                        _sendPost(context);
                         print('Submit');
-                        Navigator.push(
-                          context,
-                          new MaterialPageRoute(builder: (context) => new ResultScreen()),
-                        );
                       }),
                 ],
               ),
