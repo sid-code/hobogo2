@@ -317,6 +317,44 @@ class _ParameterScreenState extends State<ParameterScreen> {
     BlacklistingTextInputFormatter.singleLineFormatter
   ];
 
+  List<DropdownMenuItem<String>> dropItemList(int min, int max) {
+    List<DropdownMenuItem<String>> dropList = [];
+    if(max < 10) {
+      for (int i = min; i <= max; i++) {
+        DropdownMenuItem item = new DropdownMenuItem<String>(
+          child: new Text(i.toString()),
+          value: i.toString(),
+        );
+        dropList.add(item);
+      }
+    }
+    else if(max >= 10 && max < 100) {
+      for (int i = min; i < 10; i++) {
+        DropdownMenuItem item = new DropdownMenuItem<String>(
+          child: new Text(i.toString() + ' '),
+          value: i.toString(),
+        );
+        dropList.add(item);
+      }
+
+      for (int i = 10; i <= max; i++) {
+        DropdownMenuItem item = new DropdownMenuItem<String>(
+          child: new Text(i.toString()),
+          value: i.toString(),
+        );
+        dropList.add(item);
+      }
+    }
+    else {
+      print('someome had more than 100 destinations...');
+    }
+    return dropList;
+  }
+
+  String testVal1 = '1';
+  String testVal2 = '2';
+  String testVal3 = '3';
+
   bool firstRun = false;
   @override
   Widget build(BuildContext context) {
@@ -330,23 +368,80 @@ class _ParameterScreenState extends State<ParameterScreen> {
           title: new Text('Param Screen'),
         ),
         body: new Center(
-          child: new Column(
+          child:
+          new Column(
+            mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
               new Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  new Expanded(
-                    child: _genField('Max Stay',
-                      kt: TextInputType.number, tif: oneLineNumbers),
+                  new Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      new Flexible(
+                        child: new Text('Max Stay:',
+                            textAlign: TextAlign.left
+                        ),
+                      ),
+                      new Flexible(
+                        child: new Text('Min Stay:',
+                            textAlign: TextAlign.left
+                        ),
+                      ),
+                      new Flexible(
+                        child: new Text('Min Length:',
+                            textAlign: TextAlign.left
+                        ),
+                      ),
+                    ],
                   ),
-                  new Flexible(
-                      child: _genField('Min Stay',
-                      kt: TextInputType.number, tif: oneLineNumbers)
-                  ),
-                  new Flexible(
-                    child:_genField('Minimum Length',
-                        kt: TextInputType.number, tif: oneLineNumbers),
+                  new Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      new Flexible(
+                        child:
+                        new DropdownButton<String>(
+                            value: testVal1,
+                            items: dropItemList(1,9),
+                            onChanged: (String newVal){
+                              setState(() {
+                                testVal1 = newVal;
+                              });
+                            }
+                        ),
+                      ),
+                      new Flexible(
+                        child:
+                        new DropdownButton<String>(
+                            value: testVal2,
+                            items: dropItemList(1,9),
+                            onChanged: (String newVal){
+                              setState(() {
+                                testVal2 = newVal;
+                              });
+                            }
+                        ),
+                      ),
+                      new Flexible(
+                        child:
+                        new DropdownButton<String>(
+                            value: testVal3,
+                            items: dropItemList(1,9),
+                            onChanged: (String newVal){
+                              setState(() {
+                                testVal3 = newVal;
+                              });
+                            }
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -354,8 +449,22 @@ class _ParameterScreenState extends State<ParameterScreen> {
                   kt: TextInputType.number, tif: oneLineNumbers),
               _genField('Number of Passengers',
                   kt: TextInputType.number, tif: oneLineNumbers),
+              new Flexible(
+                child:
+                new DropdownButton<String>(
+                    value: testVal3,
+                    items: dropItemList(1,9),
+                    onChanged: (String newVal){
+                      setState(() {
+                        testVal3 = newVal;
+                      });
+                    }
+                ),
+              ),
               new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   new FlatButton(
                       child: start
@@ -365,20 +474,31 @@ class _ParameterScreenState extends State<ParameterScreen> {
                   ),
                 ],
               ),
-              new FlatButton(
-                  child: new Text('Back'),
-                  onPressed: () {
-                    Navigator.pop(
-                      context,
-                      true,
-                    );
-                  }),
-              new FlatButton(
-                  child: new Text('Submit'),
-                  onPressed: () {
-                    _sendPost();
-                    print('Submit');
-                  }),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  new FlatButton(
+                      child: new Text('Back'),
+                      onPressed: () {
+                        Navigator.pop(
+                          context,
+                          true,
+                        );
+                      }),
+                  new FlatButton(
+                      child: new Text('Submit'),
+                      onPressed: () {
+                        _sendPost();
+                        print('Submit');
+                        Navigator.push(
+                          context,
+                          new MaterialPageRoute(builder: (context) => new ResultScreen()),
+                        );
+                      }),
+                ],
+              ),
             ],
           ),
         ),
