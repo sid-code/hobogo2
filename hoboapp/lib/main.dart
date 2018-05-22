@@ -375,11 +375,133 @@ class _ParameterScreenState extends State<ParameterScreen> {
         appBar: new AppBar(
           title: new Text('Param Screen'),
         ),
-        body: new Center(
+        body: new Align(
+          alignment: Alignment.topCenter,
+          child:
+          SizedBox(
+            width: 400.0,
+            child:
+            new Column(
+              children: <Widget>[
+                new Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    new SizedBox(
+                      width: 130.0,
+                      child:
+                      new Container(
+                        margin: const EdgeInsets.fromLTRB(5.0,50.0,5.0,50.0),
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                        decoration: new BoxDecoration(
+                          border: new Border.all(color: Colors.black),
+                        ),
+                        child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            new Expanded(
+                              child: new Text('Max Stay:', textAlign: TextAlign.left),
+                            ),
+                            new Flexible(
+                              child: new DropdownButton<String>(
+                                  value: testVal1,
+                                  items: dropItemList(1, 9),
+                                  onChanged: (String newVal) {
+                                    setState(() {
+                                      testVal1 = newVal;
+                                    });
+                                  }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    new SizedBox(
+                      width: 130.0,
+                      child:
+                      new Container(
+                        margin: const EdgeInsets.fromLTRB(5.0,50.0,5.0,50.0),
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                        decoration: new BoxDecoration(
+                          border: new Border.all(color: Colors.black),
+                        ),
+                        child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            new Expanded(
+                              child: new Text('Min Stay:', textAlign: TextAlign.left),
+                            ),
+                            new Flexible(
+                              child: new DropdownButton<String>(
+                                  value: testVal2,
+                                  items: dropItemList(1, 9),
+                                  onChanged: (String newVal) {
+                                    setState(() {
+                                      testVal2 = newVal;
+                                    });
+                                  }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    new SizedBox(
+                      width: 130.0,
+                      child:
+                      new Container(
+                        margin: const EdgeInsets.fromLTRB(5.0,50.0,5.0,50.0),
+                        padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                        decoration: new BoxDecoration(
+                          border: new Border.all(color: Colors.black),
+                        ),
+                        child: new Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            new Expanded(
+                              child: new Text('Min length:', textAlign: TextAlign.left),
+                            ),
+                            new Flexible(
+                              child: new DropdownButton<String>(
+                                  value: testVal3,
+                                  items: dropItemList(1, 9),
+                                  onChanged: (String newVal) {
+                                    setState(() {
+                                      testVal3 = newVal;
+                                    });
+                                  }),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                new Row(
+                  children: <Widget>[
+                    Text('testrow'),
+                  ],
+                ),
+                Text('test'),
+                Text('test'),
+                Text('test'),
+                Text('test'),
+
+              ],
+            ),
+        ),
+        ),
+        /*new Center(
           child: new Column(
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
+
               new Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
@@ -390,9 +512,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      new Flexible(
-                        child: new Text('Max Stay:', textAlign: TextAlign.left),
-                      ),
+
                       new Flexible(
                         child: new Text('Min Stay:', textAlign: TextAlign.left),
                       ),
@@ -407,16 +527,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      new Flexible(
-                        child: new DropdownButton<String>(
-                            value: testVal1,
-                            items: dropItemList(1, 9),
-                            onChanged: (String newVal) {
-                              setState(() {
-                                testVal1 = newVal;
-                              });
-                            }),
-                      ),
+
                       new Flexible(
                         child: new DropdownButton<String>(
                             value: testVal2,
@@ -487,7 +598,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
               ),
             ],
           ),
-        ),
+        ),*/
         floatingActionButton: new FloatingActionButton(
             child: new Icon(IconData(0xe409,
                 fontFamily: 'MaterialIcons', matchTextDirection: true)),
