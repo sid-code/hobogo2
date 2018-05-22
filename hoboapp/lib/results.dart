@@ -18,17 +18,21 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
+  List<FlightItem> _flights = [];
   IOWebSocketChannel ws;
   WebSocket ws2;
   bool firstRun = true;
-  Card _genResult(Flight input) {
-    print('_genResult');
+  bool firstRun2 = true;
+  SizedBox _genResult(Flight input) {
     Flight inFlight = input;
-    return new Card(
-        child: new ListView(
-            padding: const EdgeInsets.all(4.0),
-            itemExtent: 40.0,
-            children: <Widget>[
+    return new SizedBox(
+        width: 400.0,
+        height: 200.0,
+        child: new Card(
+            child: new ListView(
+                padding: const EdgeInsets.all(4.0),
+                itemExtent: 40.0,
+                children: <Widget>[
           new Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -100,18 +104,49 @@ class _ResultScreenState extends State<ResultScreen> {
                   ))
             ],
           ),
-        ]));
+        ])));
+  }
+
+  bool expanded = false;
+
+  _buildList(List data) {
+    for (int i = 0; i < data.length; i++) {
+      Flight f = new Flight(
+          int.parse(data[i]['id'].toString()),
+          data[i]['loc'],
+          data[i]['from'].toString(),
+          int.parse(data[i]['departtime'].toString()),
+          int.parse(data[i]['arrivetime'].toString()),
+          double.parse(data[i]['price'].toString()),
+          data[i]['deeplink'].toString(),
+          int.parse(data[i]['passengers'].toString()));
+      if (i < _flights.length) {
+        print('saving expanded val');
+        _flights[i].flightCard = _genResult(f);
+      } else {
+        print('fucking expanded val');
+        _flights.add(new FlightItem(flightCard: _genResult(f)));
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (firstRun) {
       if (!ResultScreen.token.isEmpty) {
+        // TODO: Better error handling
+        print('token:' + ResultScreen.token);
         WebSocket
             .connect(
-                'ws://142.4.213.30:8080/subscribe?token=' + ResultScreen.token)
+                'ws://35.196.30.233:80/subscribe?token=' + ResultScreen.token)
             .then((WebSocket socket) {
+          print('ws2 connected');
+          print(socket.closeCode);
+          print(socket.closeReason);
           ws2 = socket;
+        }).catchError((error) {
+          print(error.message);
+          print(error.runtimeType);
         });
       }
       firstRun = !firstRun;
@@ -121,14 +156,42 @@ class _ResultScreenState extends State<ResultScreen> {
         title: new Text('Results'),
       ),
       body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            new Text(ResultScreen.token),
-            new Flexible(
-                child: new StreamBuilder(
+        child: new Align(
+          alignment: Alignment.topCenter,
+          child: new SingleChildScrollView(
+            child: new StreamBuilder(
               stream: ws2,
               builder: (context, snapshot) {
+                print(snapshot.data);
+                if (snapshot.data != null && snapshot.data.length > 0) {
+                  if (firstRun2) {
+                    _buildList(JSON.decode(snapshot.data));
+                    firstRun2 = false;
+                  }
+                  int index = 0;
+                  return new ExpansionPanelList(
+                      expansionCallback: (int index, bool isExpanded) {
+                        setState(() {
+                          print('setting state');
+                          _flights[index].isExpanded = !isExpanded;
+                          print('setstate index:' + index.toString());
+                          print(_flights[index].isExpanded);
+                        });
+                      },
+                      children: _flights.map((FlightItem item) {
+                        print('index:' + index.toString());
+                        print(_flights[index].isExpanded);
+                        print(_flights.length);
+                        index++;
+                        return new ExpansionPanel(
+                            isExpanded: item.isExpanded,
+                            headerBuilder: item.headerBuilder,
+                            body: item.getFlightCard());
+                      }).toList());
+                } else {
+                  return new Text('Please wait for results :)');
+                }
+                /*
                 print(snapshot.data);
                 if (snapshot.data != null && snapshot.data.length > 0) {
                   dynamic data = JSON.decode(snapshot.data);
@@ -145,9 +208,10 @@ class _ResultScreenState extends State<ResultScreen> {
                 } else {
                   return new Text('nothing here');
                 }
+                */
               },
-            )),
-          ],
+            ),
+          ),
         ),
       ),
     );
@@ -170,11 +234,30 @@ class Flight {
     this.ID = ID;
     this.Loc = loc;
     this.From = from;
-    this.DepartTime = new DateTime(departtime);
-    this.ArriveTime = new DateTime(arrivetime);
+    this.DepartTime =
+        new DateTime.fromMillisecondsSinceEpoch(departtime, isUtc: true);
+    this.ArriveTime =
+        new DateTime.fromMillisecondsSinceEpoch(arrivetime, isUtc: true);
     this.Price = price;
     this.DeepLink = deeplink;
     this.Passengers = passengers;
     this.TravelTime = this.ArriveTime.difference(this.DepartTime);
+  }
+}
+
+class FlightItem {
+  FlightItem({this.flightCard});
+
+  SizedBox flightCard;
+  bool isExpanded = false;
+
+  SizedBox getFlightCard() {
+    return flightCard;
+  }
+
+  ExpansionPanelHeaderBuilder get headerBuilder {
+    return (BuildContext context, bool isExpanded) {
+      return new Text('header');
+    };
   }
 }
