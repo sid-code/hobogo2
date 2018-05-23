@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyIntroPage(title: 'Flutter Demo Home Page'),
+      home: new HomeScreen(title: 'Odysearch'),
     );
   }
 }
@@ -42,10 +42,30 @@ class MyIntroPage extends StatefulWidget {
   final String title;
 
   @override
-  _MyIntroPageState createState() => new _MyIntroPageState();
+  //_MyIntroPageStateFake createState() => new _MyIntroPageStateFake();
+  _MyIntroPageStateFake createState() => new _MyIntroPageStateFake();
 }
 
 class _MyIntroPageState extends State<MyIntroPage> {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        body: new Center(
+      child: new Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        new Padding(
+          padding: new EdgeInsets.all(10.0),
+          child: new Text(
+              'Odysearch can help you explore the world with the cheapest flights possible.',
+              textAlign: TextAlign.center,
+              style: new TextStyle(fontSize: 18.0,),
+              ),
+        )
+      ]),
+    ));
+  }
+}
+
+class _MyIntroPageStateFake extends State<MyIntroPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
