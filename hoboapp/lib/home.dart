@@ -58,13 +58,14 @@ class _HomeScreenState extends State<HomeScreen>
         //For now just search name
         String curName = _airportList[i][2];
         String curCode = _airportList[i][10].toString();
-        int index = _fuzz.bitapSearch(curCode, value, 2);
-        if (index == 0) {
-          results.add(curName);
-          codes.add(curCode);
-          //Weight results maybe?
-          //print(levenshtein(curName, value, caseSensitive: false));
-        }
+        _fuzz.bitapSearch(curCode, value, 2).then((index) {
+          if (index == 0) {
+            results.add(curName);
+            codes.add(curCode);
+            //Weight results maybe?
+            //print(levenshtein(curName, value, caseSensitive: false));
+          }
+        });
       }
       setState(() {
         _resultList = results;
@@ -127,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    if(firstRun){
+    if (firstRun) {
       _init();
       firstRun = !firstRun;
     }

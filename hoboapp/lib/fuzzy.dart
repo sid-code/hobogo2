@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'levenshtein.dart';
 
 class Fuzzy {
@@ -13,7 +14,8 @@ class Fuzzy {
   }
 
   //Ok so max distance is nonsense, found some magic from github
-  int bitapSearch(String textStr, String patternStr, int maxDistance) {
+  Future<int> bitapSearch(String textStr, String patternStr, int maxDistance) async {
+    Completer<int> c = new Completer<int>();
     maxDistance = (patternStr.length * .25).floor();
     Utf8Codec u8codec = new Utf8Codec();
     List<int> text = u8codec.encode(textStr.toLowerCase());
@@ -47,6 +49,10 @@ class Fuzzy {
         break;
       }
     }
-    return retVal;
+    if(retVal != -1){
+    print('retval' + retVal.toString());
+    }
+    c.complete(retVal);
+    return c.future;
   }
 }
