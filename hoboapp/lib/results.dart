@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:csv/csv.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'util.dart';
 
 Icon arrow = new Icon(IconData(0xe5c8, fontFamily: 'MaterialIcons'));
 
@@ -30,82 +31,86 @@ class _ResultScreenState extends State<ResultScreen> {
     return new SizedBox(
         width: 400.0,
         height: 84.0,
-        child: new Card(
-            child: new Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-          new Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              new Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
+        child: new GestureDetector(
+          onTap:() {
+            
+          },
+            child: new Card(
+                child: new Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+              new Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text(
-                    "\$ " + inFlight.Price.toString(),
-                    textAlign: TextAlign.right,
-                    style: new TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
+                  new Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        "\$ " + inFlight.Price.toString(),
+                        textAlign: TextAlign.right,
+                        style: new TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(
-                    new DateFormat.yMd().format(inFlight.DepartTime) +
-                        '\n' +
-                        new DateFormat.jm().format(inFlight.DepartTime),
-                    textAlign: TextAlign.left),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(
+                        new DateFormat.yMd().format(inFlight.DepartTime) +
+                            '\n' +
+                            new DateFormat.jm().format(inFlight.DepartTime),
+                        textAlign: TextAlign.left),
+                  ),
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(inFlight.From, textAlign: TextAlign.center),
+                  ),
+                  arrow,
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(
+                      inFlight.Loc,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  new Align(
+                    widthFactor: 1.5,
+                    alignment: Alignment.center,
+                    child: new Text(
+                        new DateFormat.yMd().format(inFlight.ArriveTime) +
+                            '\n' +
+                            new DateFormat.jm().format(inFlight.ArriveTime),
+                        textAlign: TextAlign.right),
+                  ),
+                  new Icon(
+                    IconData(0xe192, fontFamily: 'MaterialIcons'),
+                  ),
+                  new Align(
+                      alignment: Alignment.centerRight,
+                      child: new Text(
+                        inFlight.TravelTime.inHours.toString() +
+                            'h ' +
+                            (inFlight.TravelTime.inMinutes -
+                                    60 * inFlight.TravelTime.inHours)
+                                .toString() +
+                            'm',
+                        textAlign: TextAlign.left,
+                      ))
+                ],
               ),
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(inFlight.From, textAlign: TextAlign.center),
-              ),
-              arrow,
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(
-                  inFlight.Loc,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              new Align(
-                widthFactor: 1.5,
-                alignment: Alignment.center,
-                child: new Text(
-                    new DateFormat.yMd().format(inFlight.ArriveTime) +
-                        '\n' +
-                        new DateFormat.jm().format(inFlight.ArriveTime),
-                    textAlign: TextAlign.right),
-              ),
-              new Icon(
-                IconData(0xe192, fontFamily: 'MaterialIcons'),
-              ),
-              new Align(
-                  alignment: Alignment.centerRight,
-                  child: new Text(
-                    inFlight.TravelTime.inHours.toString() +
-                        'h ' +
-                        (inFlight.TravelTime.inMinutes -
-                                60 * inFlight.TravelTime.inHours)
-                            .toString() +
-                        'm',
-                    textAlign: TextAlign.left,
-                  ))
-            ],
-          ),
-        ])));
+            ]))));
   }
 
   _buildList(List data) {
@@ -156,11 +161,10 @@ class _ResultScreenState extends State<ResultScreen> {
         print('token:' + ResultScreen.token);
         WebSocket
             .connect(
-                'ws://35.196.30.233:80/subscribe?token=' + ResultScreen.token)
+                Util.wsUrl + '/subscribe?token=' + ResultScreen.token)
             .then((WebSocket socket) {
           print('ws2 connected');
-          print(socket.closeCode);
-          print(socket.closeReason);
+          print(socket.readyState);
           ws2 = socket;
         }).catchError((error) {
           print(error.message);
@@ -202,7 +206,8 @@ class _ResultScreenState extends State<ResultScreen> {
                             ));
                       }).toList());
                 } else {
-                  return new Text('We are searching flights for you :)\nPlease give us a few minutes');
+                  return new Text(
+                      'We are searching flights for you :)\nPlease give us a few minutes');
                 }
               },
             ),
