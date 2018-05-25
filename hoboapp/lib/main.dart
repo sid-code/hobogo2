@@ -42,7 +42,7 @@ class MyIntroPage extends StatefulWidget {
   final String title;
 
   @override
-  //_MyIntroPageStateFake createState() => new _MyIntroPageStateFake();
+  //_MyIntroPageState createState() => new _MyIntroPageState();
   _MyIntroPageStateFake createState() => new _MyIntroPageStateFake();
 }
 
