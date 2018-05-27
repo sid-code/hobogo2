@@ -191,10 +191,8 @@ class _SearchDelegate extends SearchDelegate<String> {
       Search s = _search(searched);
       print(s.results.length);
       if (s.results.length > 0) {
-        print('results please');
         return new Text(s.results[0] + ' ' + s.codes[0]);
       } else {
-        print('fuck');
         return new Container();
       }
     }
