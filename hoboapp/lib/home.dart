@@ -14,7 +14,6 @@ import 'paramscreen.dart';
 List<List<dynamic>> _airportList;
 Map<String, String> _nameToCode = new Map<String, String>();
 List<String> _currentAirportCodes = [];
-Fuzzy _fuzz;
 
 void _init() async {
   final csvCodec = new CsvCodec();
@@ -23,7 +22,6 @@ void _init() async {
   for (int i = 0; i < _airportList.length; i++) {
     _nameToCode[_airportList[i][2]] = _airportList[i][10].toString();
   }
-  _fuzz = new Fuzzy();
 }
 
 class HomeScreen extends StatefulWidget {
@@ -47,31 +45,7 @@ class _HomeScreenState extends State<HomeScreen>
   List<String> _selectedList = [];
   int _curInputIndex = 0;
   int _textFieldCount = 1;
-
-  void _search(String value, int index) {
-    List<String> results = [];
-    List<String> codes = [];
-    if (value.length > 2) {
-      for (int i = 0; i < _airportList.length; i++) {
-        //For now just search name
-        String curName = _airportList[i][2];
-        String curCode = _airportList[i][10].toString();
-        _fuzz.bitapSearch(curCode, value, 2).then((index) {
-          if (index == 0) {
-            results.add(curName);
-            codes.add(curCode);
-            //Weight results maybe?
-            //print(levenshtein(curName, value, caseSensitive: false));
-          }
-        });
-      }
-      setState(() {
-        _resultList = results;
-        _codeList = codes;
-        _curInputIndex = index;
-      });
-    }
-  }
+  _SearchDelegate _delegate = new _SearchDelegate();
 
   TextField _buildTextField(int index) {
     // Hint Text
@@ -99,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen>
       ),
       controller: cont,
       onChanged: (String str) {
-        _search(str, index);
+        //_search(str, index);
         _selectedList[index] = str;
         print(_selectedList[index]);
       },
@@ -147,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         // Main Body
         body: new Column(children: <Widget>[
+          /*
           new Flexible(
             child: new ListView.builder(
                 itemCount: _textFieldCount,
@@ -154,6 +129,17 @@ class _HomeScreenState extends State<HomeScreen>
                   return _buildTextField(index);
                 }),
           ),
+          */
+          new Container(),
+          new Flexible(
+              child: new IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () async {
+                    final String selected = await showSearch<String>(
+                      context: context,
+                      delegate: _delegate,
+                    );
+                  })),
           new Expanded(
               child: new ListView.builder(
             itemCount: _resultList.length,
@@ -183,4 +169,82 @@ class _HomeScreenState extends State<HomeScreen>
               );
             }));
   }
+}
+
+class _SearchDelegate extends SearchDelegate<String> {
+  Fuzzy _fuzz = new Fuzzy();
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return new IconButton(
+        icon: new Icon(Icons.arrow_back),
+        onPressed: () {
+          close(context, null);
+        });
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    String searched = query;
+    print(searched);
+    if (searched != null) {
+      Search s = _search(searched);
+      print(s.results.length);
+      if (s.results.length > 0) {
+        print('results please');
+        return new Text(s.results[0] + ' ' + s.codes[0]);
+      } else {
+        print('fuck');
+        return new Container();
+      }
+    }
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return new Text("We can put some suggestions here :)");
+  }
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return <Widget>[
+      new IconButton(
+          icon: new Icon(Icons.cancel),
+          onPressed: () {
+            query = '';
+            showSuggestions(context);
+          }),
+    ];
+  }
+
+  Search _search(String value) {
+    List<String> results = [];
+    List<String> codes = [];
+    if (value.length > 2) {
+      for (int i = 0; i < _airportList.length; i++) {
+        //For now just search name
+        String curName = _airportList[i][2];
+        String curCode = _airportList[i][10].toString();
+        int index = _fuzz.bitapSearch(curCode, value, 2);
+        print(index);
+        if (index == 0) {
+          print('curName');
+          print(curName);
+          results.add(curName);
+          codes.add(curCode);
+          //Weight results maybe?
+        }
+      }
+      print('_search');
+      print(results);
+      print(codes);
+      return new Search(results, codes);
+    }
+  }
+}
+
+class Search {
+  Search(this.results, this.codes);
+  List<String> results;
+  List<String> codes;
 }
