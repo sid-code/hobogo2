@@ -226,18 +226,12 @@ class _SearchDelegate extends SearchDelegate<String> {
         String curName = _airportList[i][2];
         String curCode = _airportList[i][10].toString();
         int index = _fuzz.bitapSearch(curCode, value, 2);
-        print(index);
         if (index == 0) {
-          print('curName');
-          print(curName);
           results.add(curName);
           codes.add(curCode);
           //Weight results maybe?
         }
       }
-      print('_search');
-      print(results);
-      print(codes);
       return new Search(results, codes);
     }
   }
