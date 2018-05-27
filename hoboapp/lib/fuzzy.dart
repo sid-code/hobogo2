@@ -14,7 +14,7 @@ class Fuzzy {
   }
 
   //Ok so max distance is nonsense, found some magic from github
-  Future<int> bitapSearch(String textStr, String patternStr, int maxDistance) async {
+  int bitapSearch(String textStr, String patternStr, int maxDistance) {
     Completer<int> c = new Completer<int>();
     maxDistance = (patternStr.length * .25).floor();
     Utf8Codec u8codec = new Utf8Codec();
@@ -49,10 +49,12 @@ class Fuzzy {
         break;
       }
     }
+    //c.complete(retVal);
+    //return c.future;
     if(retVal != -1){
-    print('retval' + retVal.toString());
+      print('retVal not -1');
+      print(retVal);
     }
-    c.complete(retVal);
-    return c.future;
+    return retVal;
   }
 }
