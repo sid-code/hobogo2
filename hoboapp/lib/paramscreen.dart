@@ -180,17 +180,181 @@ class _ParameterScreenState extends State<ParameterScreen> {
       firstRun = !firstRun;
     }
     return new Scaffold(
-        appBar: new AppBar(
-          title: new Text('Param Screen'),
-        ),
-        body: new Align(
-          alignment: Alignment.topCenter,
-          child: SizedBox(
-            width: 400.0,
-            child: new Column(
+      appBar: new AppBar(
+        title: new Text('Param Screen'),
+      ),
+      body: new Align(
+        alignment: Alignment.topCenter,
+        child: SizedBox(
+          width: 400.0,
+          child: new Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
+                new Padding(
+                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    new Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        new Text(
+                          "Max",
+                          textAlign: TextAlign.right,
+                          style: new TextStyle(
+                            fontSize: 30.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        new Text(
+                          "time in a City",
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
+                    ),
+                    new Column(
+                      children: <Widget>[
+                        new Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            new IconButton(
+                              icon: new Icon(
+                                Icons.remove,
+                                color: Colors.lightBlue,
+                                size: 35.0,
+                              ),
+                              onPressed: null,
+                            ),
+                            new Padding(
+                              padding: new EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                              child: new Text(
+                                "1",
+                                style: new TextStyle(
+                                  fontSize: 45.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            new IconButton(
+                                icon: new Icon(
+                                  Icons.add,
+                                  size: 35.0,
+                                  color: Colors.lightBlue,
+                                ),
+                                onPressed: null
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                ),
+                new Padding(
+                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    new Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        new Text(
+                          "Min",
+                          textAlign: TextAlign.right,
+                          style: new TextStyle(
+                            fontSize: 30.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        new Text(
+                          "time in a City",
+                          textAlign: TextAlign.right,
+                        ),
+                      ],
+                    ),
+                    new Column(
+                      children: <Widget>[
+                        new Row(
+                          children: <Widget>[
+                            new IconButton(
+                              icon: new Icon(
+                                Icons.remove,
+                                color: Colors.lightBlue,
+                                size: 35.0,
+                              ),
+                              onPressed: null,
+                            ),
+                            new Padding(
+                              padding: new EdgeInsets.fromLTRB(5.0, 0.0, 5.0, 0.0),
+                              child: new Text(
+                                "1",
+                                style: new TextStyle(
+                                  fontSize: 45.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            new IconButton(
+                                icon: new Icon(
+                                  Icons.add,
+                                  color: Colors.lightBlue,
+                                  size: 35.0,
+                                ),
+                                onPressed: null
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                ),
+                new Padding(
+                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  child: new Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      new Text(
+                        "Max Price",
+                        style: new TextStyle(
+                          fontSize: 30.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      new Row(
+                        children: <Widget>[
+                          new Text(
+                            "\$",
+                            style: TextStyle(
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          new SizedBox(
+                            width: 150.0,
+                            child: new Container(
+                              decoration: new BoxDecoration(
+                                borderRadius: new BorderRadius.all(
+                                  new Radius.circular(10.0),
+                                ),
+                              ),
+                              child: new TextFormField(
+                                decoration: new InputDecoration(
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                /*
                 new Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -379,90 +543,11 @@ class _ParameterScreenState extends State<ParameterScreen> {
                           }),
                     )
                   ],
-                )
+                ),*/
               ],
             ),
           ),
         ),
-        /*new Center(
-          child: new Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  new Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-
-
-                      new Flexible(
-                        child:
-                            new Text('Min Length:', textAlign: TextAlign.left),
-                      ),
-                    ],
-                  ),
-                  new Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-
-                      new Flexible(
-                        child: new DropdownButton<String>(
-                            value: testVal2,
-                            items: dropItemList(1, 9),
-                            onChanged: (String newVal) {
-                              setState(() {
-                                testVal2 = newVal;
-                              });
-                            }),
-                      ),
-                      new Flexible(
-                        child: new DropdownButton<String>(
-                            value: testVal3,
-                            items: dropItemList(1, 9),
-                            onChanged: (String newVal) {
-                              setState(() {
-                                testVal3 = newVal;
-                              });
-                            }),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              _genField('Number of Passengers',
-                  kt: TextInputType.number, tif: oneLineNumbers),
-
-              ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-
-
-                ],
-              ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-
-
-                ],
-              ),
-            ],
-          ),
-        ),*/
         floatingActionButton: new FloatingActionButton(
             child: new Icon(IconData(0xe409,
                 fontFamily: 'MaterialIcons', matchTextDirection: true)),
