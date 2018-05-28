@@ -51,10 +51,6 @@ class Fuzzy {
     }
     //c.complete(retVal);
     //return c.future;
-    if(retVal != -1){
-      print('retVal not -1');
-      print(retVal);
-    }
     return retVal;
   }
 }
