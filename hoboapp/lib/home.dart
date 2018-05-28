@@ -139,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen>
                       context: context,
                       delegate: _delegate,
                     );
+                    print(selected);
                   })),
           new Expanded(
               child: new ListView.builder(
@@ -191,7 +192,11 @@ class _SearchDelegate extends SearchDelegate<String> {
       Search s = _search(searched);
       print(s.results.length);
       if (s.results.length > 0) {
-        return new Text(s.results[0] + ' ' + s.codes[0]);
+        return new ListView.builder(
+          itemCount: s.results.length,
+          itemBuilder: (_, int index) =>
+              _ResultCard(string: s.results[index], searchDelegate: this),
+        );
       } else {
         return new Container();
       }
@@ -239,4 +244,32 @@ class Search {
   Search(this.results, this.codes);
   List<String> results;
   List<String> codes;
+}
+
+class _ResultCard extends StatelessWidget {
+  const _ResultCard({this.string, this.searchDelegate});
+
+  final String string;
+  final SearchDelegate<String> searchDelegate;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return new GestureDetector(
+      onTap: () {
+        searchDelegate.close(context, string);
+      },
+      child: new Card(
+        child: new Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: new Column(
+            children: <Widget>[
+              new Text(string,
+                  style: theme.textTheme.headline.copyWith(fontSize: 24.0)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
