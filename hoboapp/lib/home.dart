@@ -14,8 +14,12 @@ import 'paramscreen.dart';
 List<List<dynamic>> _airportList;
 Map<String, String> _nameToCode = new Map<String, String>();
 List<String> _currentAirportCodes = [];
+int _textFieldCount = 1;
+// List of text to be put into TextFields
+List<String> _selectedList = [];
 
 void _init() async {
+  _selectedList.length = _textFieldCount;
   final csvCodec = new CsvCodec();
   String temp = await rootBundle.loadString('data/airport-codes.csv');
   _airportList = const CsvToListConverter().convert(temp);
@@ -37,66 +41,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   bool get wantKeepAlive => true;
   bool firstRun = true;
-  // List of all strings matching search
-  List<String> _resultList = [];
-  // List of all airport codes matching search
-  List<String> _codeList = [];
-  // List of text to be put into TextFields
-  List<String> _selectedList = [];
   int _curInputIndex = 0;
-  int _textFieldCount = 1;
   _SearchDelegate _delegate = new _SearchDelegate();
-
-  TextField _buildTextField(int index) {
-    // Hint Text
-    String contents = '';
-    // Active Text
-    String data = '';
-    // If we user has selected something
-    if (index >= _selectedList.length) {
-      _selectedList.length = index + 1;
-    }
-    data = _selectedList[index];
-    if (index == 0) {
-      contents = 'Home City';
-    } else {
-      contents = 'Destination City ' + index.toString();
-    }
-    TextEditingController cont = new TextEditingController(text: data);
-    if (data != null) {
-      cont.selection =
-          new TextSelection(baseOffset: data.length, extentOffset: data.length);
-    }
-    TextField field = new TextField(
-      decoration: new InputDecoration(
-        hintText: contents,
-      ),
-      controller: cont,
-      onChanged: (String str) {
-        //_search(str, index);
-        _selectedList[index] = str;
-        print(_selectedList[index]);
-      },
-    );
-    KeepAlive retVal = new KeepAlive(child: field, keepAlive: true);
-    return field;
-  }
-
-  FlatButton _buildResultButtons(int index) {
-    //index = index - _textFieldCount;
-    FlatButton retVal = new FlatButton(
-        child: new Text(_resultList[index]),
-        onPressed: () {
-          _selectedList.length = _textFieldCount;
-          setState(() {
-            _selectedList[_curInputIndex] = _resultList[index];
-            _resultList = [];
-            _textFieldCount++;
-          });
-        });
-
-    return retVal;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,33 +67,13 @@ class _HomeScreenState extends State<HomeScreen>
         ),
         // Main Body
         body: new Column(children: <Widget>[
-          /*
           new Flexible(
             child: new ListView.builder(
-                itemCount: _textFieldCount,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildTextField(index);
-                }),
+              itemCount: _textFieldCount,
+              itemBuilder: (_, int index) =>
+                  new _InputItem(searchDelegate: _delegate, index: index),
+            ),
           ),
-          */
-          new Container(),
-          new Flexible(
-              child: new IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () async {
-                    final String selected = await showSearch<String>(
-                      context: context,
-                      delegate: _delegate,
-                    );
-                    print(selected);
-                  })),
-          new Expanded(
-              child: new ListView.builder(
-            itemCount: _resultList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return _buildResultButtons(index);
-            },
-          )),
         ]),
         floatingActionButton: new FloatingActionButton(
             child: new Icon(IconData(0xe409,
@@ -172,8 +98,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 }
 
-class _SearchDelegate extends SearchDelegate<String> {
+class _SearchDelegate extends SearchDelegate<Map<String, String>> {
   Fuzzy _fuzz = new Fuzzy();
+  int currentAirportCount = 0;
 
   @override
   Widget buildLeading(BuildContext context) {
@@ -194,8 +121,10 @@ class _SearchDelegate extends SearchDelegate<String> {
       if (s.results.length > 0) {
         return new ListView.builder(
           itemCount: s.results.length,
-          itemBuilder: (_, int index) =>
-              _ResultCard(string: s.results[index], searchDelegate: this),
+          itemBuilder: (_, int index) => _ResultCard(
+              name: s.results[index],
+              code: s.codes[index],
+              searchDelegate: this),
         );
       } else {
         return new Container();
@@ -247,25 +176,85 @@ class Search {
 }
 
 class _ResultCard extends StatelessWidget {
-  const _ResultCard({this.string, this.searchDelegate});
+  const _ResultCard({this.name, this.code, this.searchDelegate});
 
-  final String string;
-  final SearchDelegate<String> searchDelegate;
+  final String name, code;
+  final SearchDelegate<Map<String, String>> searchDelegate;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return new GestureDetector(
       onTap: () {
-        searchDelegate.close(context, string);
+        Map<String, String> retVal = new Map();
+        retVal['name'] = name;
+        retVal['code'] = code;
+        searchDelegate.close(context, retVal);
       },
       child: new Card(
         child: new Padding(
           padding: const EdgeInsets.all(8.0),
           child: new Column(
             children: <Widget>[
-              new Text(string,
+              new Text('${name} (${code})',
                   style: theme.textTheme.headline.copyWith(fontSize: 24.0)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InputItem extends StatelessWidget {
+  const _InputItem({this.index, this.searchDelegate});
+  final SearchDelegate<Map<String, String>> searchDelegate;
+
+  final int index;
+
+  String _getText() {
+    String retVal = 'Tap to input ';
+    if (!(_selectedList.length > index) ||
+        (_selectedList[index] == '' || _selectedList[index] == null)) {
+      if (index == 0) {
+        retVal += 'your home city';
+      } else {
+        retVal += 'possible destination #${index + 1}';
+      }
+    } else {
+      retVal = _selectedList[index];
+    }
+    return retVal;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return new GestureDetector(
+      onTap: () async {
+        final Map<String, String> selected =
+            await showSearch<Map<String, String>>(
+          context: context,
+          delegate: searchDelegate,
+        );
+        if (selected != null) {
+          print(selected['name']);
+          print(selected['code']);
+          //Only add new field if last item, more robust logic later
+          if (index + 1 == _textFieldCount) {
+            _textFieldCount++;
+            _selectedList.length = _textFieldCount;
+            _selectedList[index] = selected['name'];
+            print(_selectedList);
+          }
+        }
+      },
+      child: new Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: new Card(
+          child: new Column(
+            children: <Widget>[
+              new Text(_getText(), style: theme.textTheme.headline),
             ],
           ),
         ),
