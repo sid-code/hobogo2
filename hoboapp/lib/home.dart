@@ -249,9 +249,9 @@ class _InputItem extends StatelessWidget {
           }
         }
       },
-        child: new Card(
-      child: new Padding(
-        padding: const EdgeInsets.all(8.0),
+      child: new Card(
+        child: new Padding(
+          padding: const EdgeInsets.all(8.0),
           child: new Column(
             children: <Widget>[
               new Text(_getText(), style: theme.textTheme.headline),
