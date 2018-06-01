@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:async';
 import 'levenshtein.dart';
 
 class Fuzzy {
   //https://stackoverflow.com/questions/5924105/how-many-characters-can-be-mapped-with-unicode
   //static final int _charMax = 17 * 65536 - 2048 - 66;
-  static final int _charMax = 128;
+  static final int _charMax = 256;
   static final List<int> _patternMask = new List<int>(_charMax + 1);
   Fuzzy() {
     for (int i = 0; i <= _charMax; ++i) {
@@ -14,6 +15,7 @@ class Fuzzy {
 
   //Ok so max distance is nonsense, found some magic from github
   int bitapSearch(String textStr, String patternStr, int maxDistance) {
+    Completer<int> c = new Completer<int>();
     maxDistance = (patternStr.length * .25).floor();
     Utf8Codec u8codec = new Utf8Codec();
     List<int> text = u8codec.encode(textStr.toLowerCase());
@@ -47,6 +49,8 @@ class Fuzzy {
         break;
       }
     }
+    //c.complete(retVal);
+    //return c.future;
     return retVal;
   }
 }
