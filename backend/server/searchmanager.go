@@ -34,7 +34,7 @@ func newSearch(config planner.Config, cl *spapi.Client) (*Search, error) {
 		return nil, fmt.Errorf("failed to generate uuid: %v", err)
 	}
 
-	var backlog []*spapi.Flight
+	var backlog [][]*spapi.Flight
 	// Initial "pong" message
 	backlog = append(backlog, nil)
 
