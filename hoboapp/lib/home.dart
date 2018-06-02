@@ -157,11 +157,22 @@ class _SearchDelegate extends SearchDelegate<Map<String, String>> {
         //For now just search name
         String curName = _airportList[i][2];
         String curCode = _airportList[i][10].toString();
-        int index = _fuzz.bitapSearch(curCode, value, 2);
-        if (index == 0) {
-          results.add(curName);
-          codes.add(curCode);
-          //Weight results maybe?
+        List<String> splitWords = curName.split(' ');
+        splitWords.removeWhere((item) => item.toLowerCase() == 'airport');
+        List<int> indexes = [];
+        for(int i = 0;i < splitWords.length;i++){
+          indexes.add(_fuzz.bitapSearch(splitWords[i], value, 2));
+        }
+        // Search for airport code
+        if(value.length == 3){
+          indexes.add(_fuzz.bitapSearch(curCode, value, 2));
+        }
+        for(int i = 0;i < indexes.length;i++){
+          if(indexes[i] == 0){
+            results.add(curName);
+            codes.add(curCode);
+            break;
+          }
         }
       }
       return new Search(results, codes);
