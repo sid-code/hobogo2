@@ -114,6 +114,10 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   _buildList(List data) {
+    if(data == null){
+      print('data was null');
+      return;
+    }
     double totalPrice = 0.0;
     DateTime tripStart = DateTime.fromMillisecondsSinceEpoch(
         int.parse(data[0]['departtime']),
@@ -153,19 +157,22 @@ class _ResultScreenState extends State<ResultScreen> {
     _flights2.sort((a, b) => a.price.compareTo(b.price));
   }
 
+  Future sleep() {
+    return new Future.delayed(const Duration(seconds: 5), () => "5");
+  }
+
   @override
   Widget build(BuildContext context) {
     if (firstRun) {
       if (!ResultScreen.token.isEmpty) {
         // TODO: Better error handling
-        print('token:' + ResultScreen.token);
         WebSocket
-            .connect(
-                Util.wsUrl + '/subscribe?token=' + ResultScreen.token)
+            .connect(Util.wsUrl + '/subscribe?token=' + ResultScreen.token)
             .then((WebSocket socket) {
-          print('ws2 connected');
-          print(socket.readyState);
           ws2 = socket;
+          sleep().then((_){
+            setState(() {});
+          });
         }).catchError((error) {
           print(error.message);
           print(error.runtimeType);
