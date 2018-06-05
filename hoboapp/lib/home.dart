@@ -54,14 +54,20 @@ class _HomeScreenState extends State<HomeScreen>
     return new Scaffold(
         appBar: new AppBar(
           actions: <Widget>[
-            new IconButton(
-              icon: new Icon(Icons.lightbulb_outline),
-            ),
-            new IconButton(
-              icon: new Icon(Icons.search),
-            ),
-            new IconButton(
-              icon: new Icon(Icons.card_travel),
+            new Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                new IconButton(
+                  icon: new Icon(Icons.lightbulb_outline),
+                ),
+                new IconButton(
+                  icon: new Icon(Icons.search),
+                ),
+                new IconButton(
+                  icon: new Icon(Icons.card_travel),
+                ),
+              ],
             ),
           ],
         ),
