@@ -208,7 +208,7 @@ class _ResultCard extends StatelessWidget {
           child: new Column(
             children: <Widget>[
               new Text('${name} (${code})',
-                  style: theme.textTheme.headline.copyWith(fontSize: 24.0)),
+                  style: theme.textTheme.headline.copyWith(fontSize: 20.0)),
             ],
           ),
         ),
@@ -224,13 +224,15 @@ class _InputItem extends StatelessWidget {
   final int index;
 
   String _getText() {
-    String retVal = 'Tap to input ';
+    String retVal = 'What is ';
     if (!(_selectedList.length > index) ||
         (_selectedList[index] == '' || _selectedList[index] == null)) {
       if (index == 0) {
-        retVal += 'your home city';
+        retVal += 'your home city?';
+      } else if(index == 1) {
+        retVal += 'the city you most want to visit?';
       } else {
-        retVal += 'possible destination #${index + 1}';
+        retVal += 'another city you want to visit?';
       }
     } else {
       retVal = _selectedList[index];
@@ -260,13 +262,22 @@ class _InputItem extends StatelessWidget {
           }
         }
       },
-      child: new Card(
-        child: new Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: new Column(
-            children: <Widget>[
-              new Text(_getText(), style: theme.textTheme.headline),
-            ],
+      child: new Padding(
+        padding: const EdgeInsets.fromLTRB(25.0, 5.0, 25.0, 0.0),
+        child: new Card(
+          elevation: 0.5,
+          shape: RoundedRectangleBorder(
+            borderRadius: const BorderRadius.all(
+                const Radius.circular(7.0)
+            ),
+          ),
+          child: new Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: new Column(
+              children: <Widget>[
+                new Text(_getText(), style: theme.textTheme.headline.copyWith(fontSize: 18.0)),
+              ],
+            ),
           ),
         ),
       ),

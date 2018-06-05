@@ -11,6 +11,7 @@ import 'results.dart';
 import 'postdata.dart';
 import 'home.dart';
 import 'util.dart';
+import 'package:intl/intl.dart';
 
 class ParameterScreen extends StatefulWidget {
   ParameterScreen({Key key, this.title}) : super(key: key);
@@ -20,6 +21,13 @@ class ParameterScreen extends StatefulWidget {
   @override
   _ParameterScreenState createState() => new _ParameterScreenState();
 }
+
+//global sendPost variables
+int maxStayVal;
+int minStayVal;
+int minLengthVal;
+int passVal;
+int priceVal;
 
 class _ParameterScreenState extends State<ParameterScreen> {
   PostData postData = new PostData();
@@ -80,10 +88,12 @@ class _ParameterScreenState extends State<ParameterScreen> {
             if (index == 0) {
               print(dt);
               postData.startTime = dt.millisecondsSinceEpoch;
-              start = _buildClickableDateField(dt.toString(), context, index);
+              start = _buildClickableDateField(
+                  new DateFormat.yMMMMd().format(dt).toString(), context, index);
             } else if (index == 1) {
               postData.endTime = dt.millisecondsSinceEpoch;
-              end = _buildClickableDateField(dt.toString(), context, index);
+              end = _buildClickableDateField(
+                  new DateFormat.yMMMMd().format(dt).toString(), context, index);
             }
           });
         });
@@ -91,7 +101,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
       child: new Text(text,
           textAlign: TextAlign.center,
           style: new TextStyle(
-            color: Colors.black,
+            color: Colors.lightBlueAccent,
           )),
     );
   }
@@ -135,15 +145,13 @@ class _ParameterScreenState extends State<ParameterScreen> {
   ];
 
 
-  int maxStayVal = 1;
-  int minStayVal = 1;
-  int minLengthVal = 1;
-  int passVal = 1;
-
   //NumRocker takes postData parameter as input to set on change
-  NumRocker maxRock = new NumRocker();
-  NumRocker minRock = new NumRocker();
-  NumRocker passRock = new NumRocker();
+  NumRocker maxRock = new NumRocker(iD: 1, dispVal: 5);
+  NumRocker minRock = new NumRocker(iD: 2, dispVal: 2);
+  NumRocker citRock = new NumRocker(
+      iD: 3, minVal: 1, dispVal: 3, iconSize: 20.0, fontSize: 25.0);
+  NumRocker passRock = new NumRocker(
+      iD: 4, minVal: 1, iconSize: 20.0, fontSize: 25.0, colMinim: Colors.grey);
 
   bool firstRun = false;
   @override
@@ -166,7 +174,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 new Padding(
-                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  padding: new EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 5.0),
                   child: new Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
@@ -196,7 +204,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                   ),
                 ),
                 new Padding(
-                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  padding: new EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
                   child: new Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
@@ -226,7 +234,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                 ),
                 ),
                 new Padding(
-                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  padding: new EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 0.0),
                   child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
@@ -236,23 +244,55 @@ class _ParameterScreenState extends State<ParameterScreen> {
                           new Text(
                             "Minimum",
                             textAlign: TextAlign.right,
+                            style: new TextStyle(
+                              fontSize: 18.0,
+                            ),
                           ),
                           new Text(
-                            "number of cities",
+                            "num of Cities",
                             textAlign: TextAlign.right,
                           ),
                         ],
                       ),
                       new Column(
                         children: <Widget>[
-                          minRock,
+                          citRock,
                         ],
                       ),
                     ],
                   ),
                 ),
                 new Padding(
-                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  padding: new EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
+                  child: new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      new Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          new Text(
+                            "Number",
+                            textAlign: TextAlign.right,
+                            style: new TextStyle(
+                              fontSize: 18.0,
+                              ),
+                          ),
+                          new Text(
+                            "of passengers",
+                            textAlign: TextAlign.right,
+                          ),
+                        ],
+                      ),
+                      new Column(
+                        children: <Widget>[
+                          passRock,
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                new Padding(
+                  padding: new EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
                   child: new Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -277,14 +317,19 @@ class _ParameterScreenState extends State<ParameterScreen> {
                             width: 150.0,
                             child: new Container(
                               decoration: new BoxDecoration(
-                                borderRadius: new BorderRadius.all(
-                                  new Radius.circular(10.0),
+                                border: new Border.all(
+                                  color: Colors.black,
+                                  width: 1.0,
                                 ),
+                                shape: BoxShape.rectangle,
+                                //borderRadius: new Radius.circular(10.0),
                               ),
                               child: new TextFormField(
                                 decoration: new InputDecoration(
-                                  border: InputBorder.none,
                                 ),
+                                onFieldSubmitted: (String newVal) {
+                                  priceVal = int.parse(newVal);
+                                },
                               ),
                             ),
                           ),
@@ -294,7 +339,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                   ),
                 ),
                 new Padding(
-                  padding: new EdgeInsets.fromLTRB(20.0, 35.0, 20.0, 20.0),
+                  padding: new EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 10.0),
                   child:
                     new Text(
                       "Rough Travel Dates",
@@ -306,7 +351,7 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     )
                 ),
                 new Padding(
-                  padding: new EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
+                  padding: new EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 10.0),
                   child: new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
@@ -345,40 +390,96 @@ class _ParameterScreenState extends State<ParameterScreen> {
                     ],
                   ),
                 ),
+                new Padding(
+                  padding: const EdgeInsets.fromLTRB(1.0, 15.0, 1.0, 0.0),
+                  child: new FlatButton(
+                    onPressed:  () {
+                      postData.maxStay = maxStayVal;
+                      postData.minStay = minStayVal;
+                      postData.minLength = minLengthVal;
+                      postData.passengers = passVal;
+                      postData.maxPrice = priceVal;
+
+                      print(postData.maxStay);
+                      print(postData.minStay);
+                      print(postData.minLength);
+                      print(postData.passengers);
+                      print(postData.maxPrice);
+                      print(postData.startTime);
+                      print(postData.endTime);
+
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(builder: (context) => new ResultScreen()),
+                      );
+                    },
+                    color: Colors.lightBlue,
+                    child: new Text("Search",
+                      style: new TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  )
+                ),
               ],
             ),
           ),
         ),
-        floatingActionButton: new FloatingActionButton(
-            child: new Icon(IconData(0xe409,
-                fontFamily: 'MaterialIcons', matchTextDirection: true)),
-            onPressed: () {
-              Navigator.push(
-                context,
-                new MaterialPageRoute(builder: (context) => new ResultScreen()),
-              );
-            }));
+    );
   }
 }
 
 class NumRocker extends StatefulWidget {
-  NumRocker({this.minVal, this.val, this.subCol});
 
+  //iD values: maxStay = 1, minStay = 2, minCities = 3, numPassengers = 4
+  int iD;
   int minVal;
-  int val;
-  Color subCol;
+  int dispVal;
+  int maxVal;
+  double iconSize;
+  double fontSize;
+  Color colMinim;
+  Color colMaxim;
+
+  NumRocker({
+    this.iD = 0,
+    this.minVal = 0,
+    this.dispVal = 1,
+    this.maxVal = 99,
+    this.iconSize = 35.0,
+    this.fontSize = 45.0,
+    this.colMinim = Colors.lightBlueAccent,
+    this.colMaxim = Colors.lightBlueAccent,
+  });
+
 
   @override
-  _NumRockerState createState() => new _NumRockerState();
+  _NumRockerState createState() => new _NumRockerState(
+      id: iD,
+      min: minVal,
+      val: dispVal,
+      max: maxVal,
+      iconS: iconSize,
+      fontS: fontSize,
+      colMin: colMinim,
+      colMax: colMaxim,
+  );
 }
 
 class _NumRockerState extends State<NumRocker> {
-
-  int val = 1;
-  int min = 0;
-  int max = 9;
-  Color colMin = Colors.lightBlueAccent;
-  Color colMax = Colors.lightBlueAccent;
+  _NumRockerState({
+    this.id, this.min, this.val, this.max, this.iconS, this.fontS,
+    this.colMin, this.colMax
+  });
+  int id;
+  int min;
+  int val;
+  int max;
+  double iconS;
+  double fontS;
+  Color colMin;
+  Color colMax;
 
   void dec() {
     setState(() {
@@ -391,6 +492,26 @@ class _NumRockerState extends State<NumRocker> {
           colMax = Colors.lightBlueAccent;
         }
       }
+
+      //id check
+      if(id == 0) {
+          print('id = 0, ID NOT SET PROPERLY');
+      } else if (id == 1) {
+        //id = maxStay
+        maxStayVal = val;
+      } else if (id == 2){
+        //id = minStay
+        minStayVal = val;
+      } else if (id == 3){
+        //id = minCities
+        minLengthVal = val;
+      } else if (id == 4){
+        //id = numPassengers
+        passVal = val;
+      } else {
+        print('id not 0-4, UNDEFINED');
+      }
+
     });
   }
 
@@ -405,11 +526,26 @@ class _NumRockerState extends State<NumRocker> {
           colMax = Colors.grey;
         }
       }
-    });
-  }
 
-  int getVal() {
-    return val;
+      //id check
+      if(id == 0) {
+        print('id = 0, ID NOT SET PROPERLY');
+      } else if (id == 1) {
+        //id = maxStay
+        maxStayVal = val;
+      } else if (id == 2){
+        //id = minStay
+        minStayVal = val;
+      } else if (id == 3){
+        //id = minCities
+        minLengthVal = val;
+      } else if (id == 4){
+        //id = numPassengers
+        passVal = val;
+      } else {
+        print('id not 0-4, UNDEFINED');
+      }
+    });
   }
 
   @override
@@ -420,7 +556,7 @@ class _NumRockerState extends State<NumRocker> {
           icon: new Icon(
             Icons.remove,
             color: colMin,
-            size: 35.0,
+            size: iconS,
           ),
           onPressed: (){
             dec();
@@ -431,7 +567,7 @@ class _NumRockerState extends State<NumRocker> {
           child: new Text(
             val.toString(),
             style: new TextStyle(
-              fontSize: 45.0,
+              fontSize: fontS,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -440,7 +576,7 @@ class _NumRockerState extends State<NumRocker> {
           icon: new Icon(
             Icons.add,
             color: colMax,
-            size: 35.0,
+            size: iconS,
           ),
           onPressed: (){
             inc();
