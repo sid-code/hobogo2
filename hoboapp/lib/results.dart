@@ -21,8 +21,8 @@ class ResultScreen extends StatefulWidget {
 }
 
 class _ResultScreenState extends State<ResultScreen> {
-  List<FlightItems> _flights2 = [];
-  List<FlightItems> _flights3 = [];
+  List<FlightItems> _allFlights = [];
+  List<FlightItems> _cheapest20Flights = [];
   IOWebSocketChannel ws;
   WebSocket ws2;
   bool firstRun = true;
@@ -33,90 +33,88 @@ class _ResultScreenState extends State<ResultScreen> {
         width: 400.0,
         height: 84.0,
         child: new GestureDetector(
-          onTap:() {
-            
-          },
+            onTap: () {},
             child: new Card(
                 child: new Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
-              new Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  new Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      Text(
-                        "\$ " + inFlight.Price.toString(),
-                        textAlign: TextAlign.right,
-                        style: new TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue,
-                        ),
+                      new Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "\$ " + inFlight.Price.toString(),
+                            textAlign: TextAlign.right,
+                            style: new TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
-              new Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(
-                        new DateFormat.yMd().format(inFlight.DepartTime) +
-                            '\n' +
-                            new DateFormat.jm().format(inFlight.DepartTime),
-                        textAlign: TextAlign.left),
+                  new Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      new Align(
+                        widthFactor: 1.5,
+                        alignment: Alignment.center,
+                        child: new Text(
+                            new DateFormat.yMd().format(inFlight.DepartTime) +
+                                '\n' +
+                                new DateFormat.jm().format(inFlight.DepartTime),
+                            textAlign: TextAlign.left),
+                      ),
+                      new Align(
+                        widthFactor: 1.5,
+                        alignment: Alignment.center,
+                        child: new Text(inFlight.From,
+                            textAlign: TextAlign.center),
+                      ),
+                      arrow,
+                      new Align(
+                        widthFactor: 1.5,
+                        alignment: Alignment.center,
+                        child: new Text(
+                          inFlight.Loc,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      new Align(
+                        widthFactor: 1.5,
+                        alignment: Alignment.center,
+                        child: new Text(
+                            new DateFormat.yMd().format(inFlight.ArriveTime) +
+                                '\n' +
+                                new DateFormat.jm().format(inFlight.ArriveTime),
+                            textAlign: TextAlign.right),
+                      ),
+                      new Icon(
+                        IconData(0xe192, fontFamily: 'MaterialIcons'),
+                      ),
+                      new Align(
+                          alignment: Alignment.centerRight,
+                          child: new Text(
+                            inFlight.TravelTime.inHours.toString() +
+                                'h ' +
+                                (inFlight.TravelTime.inMinutes -
+                                        60 * inFlight.TravelTime.inHours)
+                                    .toString() +
+                                'm',
+                            textAlign: TextAlign.left,
+                          ))
+                    ],
                   ),
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(inFlight.From, textAlign: TextAlign.center),
-                  ),
-                  arrow,
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(
-                      inFlight.Loc,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  new Align(
-                    widthFactor: 1.5,
-                    alignment: Alignment.center,
-                    child: new Text(
-                        new DateFormat.yMd().format(inFlight.ArriveTime) +
-                            '\n' +
-                            new DateFormat.jm().format(inFlight.ArriveTime),
-                        textAlign: TextAlign.right),
-                  ),
-                  new Icon(
-                    IconData(0xe192, fontFamily: 'MaterialIcons'),
-                  ),
-                  new Align(
-                      alignment: Alignment.centerRight,
-                      child: new Text(
-                        inFlight.TravelTime.inHours.toString() +
-                            'h ' +
-                            (inFlight.TravelTime.inMinutes -
-                                    60 * inFlight.TravelTime.inHours)
-                                .toString() +
-                            'm',
-                        textAlign: TextAlign.left,
-                      ))
-                ],
-              ),
-            ]))));
+                ]))));
   }
 
   _buildList(List data) {
-    if(data == null){
-      print('data was null');
+    if (data == null) {
       return;
     }
     double totalPrice = 0.0;
@@ -126,8 +124,6 @@ class _ResultScreenState extends State<ResultScreen> {
     DateTime tripEnd = DateTime.fromMillisecondsSinceEpoch(
         int.parse(data[data.length - 1]['arrivetime']),
         isUtc: true);
-    print(tripStart);
-    print(tripEnd);
     List<String> codes = [];
     List<SizedBox> addVal = [];
     for (int i = 0; i < data.length; i++) {
@@ -149,22 +145,16 @@ class _ResultScreenState extends State<ResultScreen> {
           int.parse(data[i]['passengers'].toString()));
       addVal.add(_genResult(f));
     }
-    _flights2.add(new FlightItems(
+    _allFlights.add(new FlightItems(
         flightCards: addVal,
         price: totalPrice,
         tripStart: tripStart,
         tripEnd: tripEnd,
         codes: codes));
-    _flights2.sort((a, b) => a.price.compareTo(b.price));
-    print(_flights2);
-    print(_flights2.length);
-    _flights3 = [];
-    for (int i = 0; i <= 20 && i < _flights2.length; i++) {
-      print('forloop');
-      print(i);
-      _flights3.add(_flights2[i]);
-      print('flights3');
-      print(_flights3);
+    _allFlights.sort((a, b) => a.price.compareTo(b.price));
+    _cheapest20Flights = [];
+    for (int i = 0; i <= 20 && i < _allFlights.length; i++) {
+      _cheapest20Flights.add(_allFlights[i]);
     }
   }
 
@@ -181,7 +171,7 @@ class _ResultScreenState extends State<ResultScreen> {
             .connect(Util.wsUrl + '/subscribe?token=' + ResultScreen.token)
             .then((WebSocket socket) {
           ws2 = socket;
-          sleep().then((_){
+          sleep().then((_) {
             setState(() {});
           });
         }).catchError((error) {
@@ -202,20 +192,16 @@ class _ResultScreenState extends State<ResultScreen> {
             child: new StreamBuilder(
               stream: ws2,
               builder: (context, snapshot) {
-                print(snapshot.data);
                 if (snapshot.data != null && snapshot.data.length > 0) {
                   _buildList(JSON.decode(snapshot.data));
                   int index = 0;
                   return new ExpansionPanelList(
                       expansionCallback: (int index, bool isExpanded) {
                         setState(() {
-                          print('setting state');
-                          _flights3[index].isExpanded = !isExpanded;
-                          print('setstate index:' + index.toString());
-                          print(_flights3[index].isExpanded);
+                          _cheapest20Flights[index].isExpanded = !isExpanded;
                         });
                       },
-                      children: _flights3.map((FlightItems item) {
+                      children: _cheapest20Flights.map((FlightItems item) {
                         return new ExpansionPanel(
                             isExpanded: item.isExpanded,
                             headerBuilder: item.headerBuilder,
