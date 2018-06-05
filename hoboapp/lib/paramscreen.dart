@@ -408,6 +408,8 @@ class _ParameterScreenState extends State<ParameterScreen> {
                       print(postData.startTime);
                       print(postData.endTime);
 
+                      _sendPost(context);
+
                       Navigator.push(
                         context,
                         new MaterialPageRoute(builder: (context) => new ResultScreen()),
@@ -550,6 +552,24 @@ class _NumRockerState extends State<NumRocker> {
 
   @override
   Widget build(BuildContext context){
+    //id check
+    if(id == 0) {
+      print('id = 0, ID NOT SET PROPERLY');
+    } else if (id == 1) {
+      //id = maxStay
+      maxStayVal = val;
+    } else if (id == 2){
+      //id = minStay
+      minStayVal = val;
+    } else if (id == 3){
+      //id = minCities
+      minLengthVal = val;
+    } else if (id == 4){
+      //id = numPassengers
+      passVal = val;
+    } else {
+      print('id not 0-4, UNDEFINED');
+    }
     return new Row(
       children: <Widget>[
         new IconButton(
