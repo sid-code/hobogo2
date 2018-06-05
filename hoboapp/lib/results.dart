@@ -22,6 +22,7 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   List<FlightItems> _flights2 = [];
+  List<FlightItems> _flights3 = [];
   IOWebSocketChannel ws;
   WebSocket ws2;
   bool firstRun = true;
@@ -155,6 +156,16 @@ class _ResultScreenState extends State<ResultScreen> {
         tripEnd: tripEnd,
         codes: codes));
     _flights2.sort((a, b) => a.price.compareTo(b.price));
+    print(_flights2);
+    print(_flights2.length);
+    _flights3 = [];
+    for (int i = 0; i <= 20 && i < _flights2.length; i++) {
+      print('forloop');
+      print(i);
+      _flights3.add(_flights2[i]);
+      print('flights3');
+      print(_flights3);
+    }
   }
 
   Future sleep() {
@@ -199,12 +210,12 @@ class _ResultScreenState extends State<ResultScreen> {
                       expansionCallback: (int index, bool isExpanded) {
                         setState(() {
                           print('setting state');
-                          _flights2[index].isExpanded = !isExpanded;
+                          _flights3[index].isExpanded = !isExpanded;
                           print('setstate index:' + index.toString());
-                          print(_flights2[index].isExpanded);
+                          print(_flights3[index].isExpanded);
                         });
                       },
-                      children: _flights2.map((FlightItems item) {
+                      children: _flights3.map((FlightItems item) {
                         return new ExpansionPanel(
                             isExpanded: item.isExpanded,
                             headerBuilder: item.headerBuilder,
