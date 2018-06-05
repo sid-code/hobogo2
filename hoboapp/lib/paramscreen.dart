@@ -409,13 +409,13 @@ class _ParameterScreenState extends State<ParameterScreen> {
                       print(postData.endTime);
 
                       _sendPost(context);
-
-                      Navigator.push(
-                        context,
-                        new MaterialPageRoute(builder: (context) => new ResultScreen()),
-                      );
                     },
                     color: Colors.lightBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: const BorderRadius.all(
+                          const Radius.circular(7.0)
+                      ),
+                    ),
                     child: new Text("Search",
                       style: new TextStyle(
                         fontSize: 20.0,
